@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import ModeMenu from "@/components/ModeMenu";
 import MusicPlayer from "@/components/MusicPlayer";
@@ -12,6 +13,7 @@ export default async function Home() {
     <>
       <header className={styles.nav}>
         <Link href="/" className={styles.navLogo} aria-label="Hell on Tap, início">
+          <Image src="/logo-mark.png" alt="" width={494} height={512} className={styles.navMark} priority />
           HOT
         </Link>
         <nav className={styles.navLinks} aria-label="Principal">
@@ -26,10 +28,27 @@ export default async function Home() {
 
       <main>
         <section className={styles.hero} aria-labelledby="hero-title">
+          <Image
+            src="/background.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            quality={80}
+            className={styles.heroBg}
+          />
           <div className={styles.heroInner}>
             <h1 id="hero-title" className={styles.title}>
-              <span className={styles.logo} aria-hidden="true">
-                HOT
+              <span className={styles.brand} aria-hidden="true">
+                <Image
+                  src="/logo-mark.png"
+                  alt=""
+                  width={494}
+                  height={512}
+                  className={styles.mark}
+                  priority
+                />
+                <span className={styles.logo}>HOT</span>
               </span>
               <span className={styles.name}>Hell on Tap</span>
             </h1>
@@ -45,13 +64,6 @@ export default async function Home() {
                 Criar conta
               </Link>
             </div>
-          </div>
-
-          <div className={styles.crosshair} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
           </div>
 
           <dl className={styles.hud}>
@@ -131,7 +143,10 @@ export default async function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <span className={styles.navLogo}>HOT</span>
+        <span className={styles.navLogo}>
+          <Image src="/logo-mark.png" alt="" width={494} height={512} className={styles.navMark} />
+          HOT
+        </span>
         <p>Hell on Tap, um jogo da 500ml Stories.</p>
       </footer>
 
