@@ -152,9 +152,9 @@ export default function NotFoundScene() {
                         <Link href="/" className={styles.primary}>
                             Renascer agora
                         </Link>
-                        <Link href="/login" className={styles.secondary}>
+                        <a href="#entrar" className={styles.secondary} onClick={() => setRespawning(false)}>
                             Entrar
-                        </Link>
+                        </a>
                         {respawning && (
                             <button type="button" className={styles.cancel} onClick={() => setRespawning(false)}>
                                 Cancelar respawn

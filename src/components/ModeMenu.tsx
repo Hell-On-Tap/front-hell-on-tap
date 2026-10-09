@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MODES } from "@/lib/home-data";
+import { GAME_URL, MODES } from "@/lib/home-data";
+import { useSession } from "@/lib/session";
 import styles from "./ModeMenu.module.css";
 
 export default function ModeMenu() {
+  const authed = useSession().status === "authed";
   const [selected, setSelected] = useState(0);
   const mode = MODES[selected];
 
@@ -45,8 +47,8 @@ export default function ModeMenu() {
         <p className={styles.description}>{mode.description}</p>
         <p className={styles.extra}>{mode.detail}</p>
         {mode.available && mode.href ? (
-          <a href={mode.href} className={styles.play}>
-            Entrar e jogar
+          <a href={authed ? GAME_URL : mode.href} className={styles.play}>
+            {authed ? "Jogar" : "Entrar e jogar"}
           </a>
         ) : (
           <span className={styles.locked}>Ainda não disponível</span>

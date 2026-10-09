@@ -70,6 +70,37 @@
   background: rgba(255, 180, 58, 0.12);
 }
 
+/* logado: apelido + sair */
+.user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--hud);
+}
+
+.userDot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #4cff7a;
+  box-shadow: 0 0 6px #4cff7a;
+}
+
+.logout {
+  font-weight: 600;
+  color: var(--bone-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.logout:hover {
+  color: var(--bone);
+}
+
 .fullscreen {
   display: grid;
   place-items: center;

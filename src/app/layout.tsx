@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Big_Shoulders, Chakra_Petch, Silkscreen } from "next/font/google";
+import AuthDialog from "@/components/auth/AuthDialog";
 import PixelBoot from "@/components/PixelBoot";
 import ReportBugButton from "@/components/ReportBugButton";
+import { SessionProvider } from "@/lib/session";
 import "./globals.css";
 
 const display = Big_Shoulders({
@@ -31,9 +33,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html lang="pt-BR" className={`${display.variable} ${body.variable} ${pixel.variable}`}>
             <body>
-                <PixelBoot />
-                {children}
-                <ReportBugButton />
+                <SessionProvider>
+                    <PixelBoot />
+                    {children}
+                    <ReportBugButton />
+                    <AuthDialog />
+                </SessionProvider>
             </body>
         </html>
     );

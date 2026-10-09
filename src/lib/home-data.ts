@@ -4,7 +4,7 @@ export const GAME_URL = process.env.NEXT_PUBLIC_GAME_URL ?? "http://localhost:30
  * Conta obrigatória: não existe partida como visitante.
  * Todo "jogar" passa pelo login; depois de autenticado, o front leva ao jogo com o token.
  */
-export const PLAY_HREF = "/login";
+export const PLAY_HREF = "#entrar";
 
 export type GameMode = {
   key: string;

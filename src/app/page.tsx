@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import HeroVideo from "@/components/HeroVideo";
 import ModeMenu from "@/components/ModeMenu";
 import MusicPlayer from "@/components/MusicPlayer";
 import SiteHeader from "@/components/SiteHeader";
 import { getPlaylist } from "@/lib/playlist";
-import { HUD_STATS, PLAY_HREF, SAMPLE_SCOREBOARD } from "@/lib/home-data";
+import { AuthedOnly, GuestOnly, Nickname, PlayLink } from "@/components/AuthGate";
+import { HUD_STATS, SAMPLE_SCOREBOARD } from "@/lib/home-data";
 import styles from "./page.module.css";
 
 export default async function Home() {
@@ -31,14 +31,21 @@ export default async function Home() {
                             O inferno servido na pressão. FPS retrô no navegador, com a mira do Counter-Strike 1.6 e a cara do Doom.
                         </p>
                         <div className={styles.actions}>
-                            <Link href={PLAY_HREF} className={styles.primary}>
-                                Jogar agora
-                            </Link>
-                            <Link href="/registro" className={styles.secondary}>
-                                Criar conta
-                            </Link>
+                            <PlayLink className={styles.primary}>Jogar agora</PlayLink>
+                            <GuestOnly>
+                                <a href="#criar-conta" className={styles.secondary}>
+                                    Criar conta
+                                </a>
+                            </GuestOnly>
                         </div>
-                        <p className={styles.accountNote}>Para jogar é preciso ter uma conta.</p>
+                        <GuestOnly>
+                            <p className={styles.accountNote}>Para jogar é preciso ter uma conta.</p>
+                        </GuestOnly>
+                        <AuthedOnly>
+                            <p className={styles.accountNote}>
+                                Conectado como <strong><Nickname /></strong>.
+                            </p>
+                        </AuthedOnly>
                     </div>
 
                     <dl className={styles.hud}>
@@ -105,18 +112,20 @@ export default async function Home() {
                     </div>
                 </section>
 
+                <GuestOnly>
                 <section className={styles.join} aria-labelledby="join-title">
                     <h2 id="join-title">Crie sua conta para jogar</h2>
                     <p>Toda partida no Hell on Tap é jogada com conta. Seus frags, mortes e headshots ficam no seu perfil e entram no placar.</p>
                     <div className={styles.joinActions}>
-                        <Link href="/registro" className={styles.primary}>
+                        <a href="#criar-conta" className={styles.primary}>
                             Criar conta
-                        </Link>
-                        <Link href="/login" className={styles.textLink}>
+                        </a>
+                        <a href="#entrar" className={styles.textLink}>
                             Já tenho conta
-                        </Link>
+                        </a>
                     </div>
                 </section>
+                </GuestOnly>
             </main>
 
             <footer className={styles.footer}>

@@ -129,7 +129,7 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
         </button>
       )}
 
-      <aside className={styles.player} aria-label="Música">
+      <aside className={styles.player} aria-label="Música" data-stay-active="">
         {gate === "hint" && (
           <p className={styles.hint} role="status">
             Clique em qualquer lugar para ligar o som.

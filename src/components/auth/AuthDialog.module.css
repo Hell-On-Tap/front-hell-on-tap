@@ -1,0 +1,324 @@
+/* ---------- Janela ---------- */
+/* <dialog> não modal: o fundo é um elemento próprio e o player fica acima dele */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background:
+    radial-gradient(ellipse at center, rgba(60, 4, 4, 0.55), rgba(10, 0, 0, 0.88)),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 200ms ease-out,
+    visibility 0s 200ms;
+}
+
+.backdrop[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 200ms ease-out;
+}
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 310;
+  width: fit-content;
+  height: fit-content;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bone);
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow: visible;
+}
+
+.dialog[open] {
+  animation: open 260ms steps(5, end) both;
+}
+
+/* celular com o player na barra de baixo: o pop-up sobe para não ficar atrás dele */
+@media (max-width: 640px) {
+  :global(body:has([data-stay-active])) .dialog {
+    margin-top: 0.75rem;
+    margin-bottom: 5.25rem;
+    max-height: calc(100dvh - 6rem);
+  }
+
+  :global(body:has([data-stay-active])) .panel {
+    max-height: calc(100dvh - 6rem);
+  }
+}
+
+.panel {
+  position: relative;
+  width: 420px;
+  max-width: 100%;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 2rem 2rem 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(142, 11, 11, 0.35), transparent 40%),
+    #1c0202;
+  border: 2px solid var(--hud);
+  box-shadow:
+    0 0 0 4px #1c0202,
+    0 0 0 6px rgba(255, 180, 58, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(200, 23, 14, 0.35);
+}
+
+.close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--bone-dim);
+}
+
+.close:hover {
+  color: var(--hud);
+  background: rgba(255, 180, 58, 0.1);
+}
+
+.close svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+}
+
+/* ---------- Cabeçalho ---------- */
+.head {
+  text-align: center;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 16px rgba(255, 60, 30, 0.5));
+}
+
+.title {
+  margin-top: 0.5rem;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--hud);
+  text-shadow: 0.08em 0.08em 0 #1a0101;
+}
+
+.subtitle {
+  margin: 0.5rem auto 0;
+  max-width: 30ch;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+/* ---------- Abas ---------- */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 1.5rem;
+  border: 1px solid rgba(255, 180, 58, 0.35);
+}
+
+.tab {
+  padding: 0.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--hud);
+  transition: background-color 100ms;
+}
+
+.tab:hover {
+  background: rgba(255, 180, 58, 0.08);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--hud);
+  color: var(--blood-deep);
+}
+
+/* ---------- Formulário ---------- */
+.form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--bone);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(242, 227, 207, 0.25);
+  border-radius: 0;
+  outline: none;
+  transition:
+    border-color 100ms,
+    box-shadow 100ms;
+}
+
+.input:hover {
+  border-color: rgba(242, 227, 207, 0.45);
+}
+
+.input:focus {
+  border-color: var(--hud);
+  box-shadow: 0 0 0 2px rgba(255, 180, 58, 0.25);
+}
+
+.input[aria-invalid="true"] {
+  border-color: #ff6a4d;
+}
+
+.passwordWrap {
+  position: relative;
+}
+
+.passwordWrap .input {
+  padding-right: 2.75rem;
+}
+
+.reveal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2.75rem;
+  display: grid;
+  place-items: center;
+  color: var(--bone-dim);
+}
+
+.reveal:hover,
+.reveal[aria-pressed="true"] {
+  color: var(--hud);
+}
+
+.reveal svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+.hint,
+.error {
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.hint {
+  color: var(--bone-dim);
+}
+
+.error {
+  color: #ff8a6d;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--hud);
+}
+
+.formError {
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--bone);
+  background: rgba(200, 23, 14, 0.3);
+  border-left: 3px solid #ff6a4d;
+}
+
+.submit {
+  min-height: 3rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  background: var(--hud);
+  color: var(--blood-deep);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.submit:hover:not(:disabled) {
+  background: #ffc766;
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.switch {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.switch button {
+  font-weight: 600;
+  color: var(--hud);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Animação: abre em degraus, como janela de jogo antigo ---------- */
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* celular: ocupa a largura toda */
+@media (max-width: 480px) {
+  .panel {
+    padding: 1.75rem 1.25rem 1.25rem;
+  }
+}

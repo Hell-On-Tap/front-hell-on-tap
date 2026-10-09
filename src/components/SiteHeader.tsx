@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSession } from "@/lib/session";
 import styles from "./SiteHeader.module.css";
 
 // ---- tela cheia: estado vem do próprio navegador ----
@@ -23,6 +24,7 @@ function toggleFullscreen() {
 }
 
 export default function SiteHeader() {
+    const { status, user, signOut } = useSession();
     const [scrolled, setScrolled] = useState(false);
     const isFullscreen = useSyncExternalStore(
         subscribeFullscreen,
@@ -71,10 +73,25 @@ export default function SiteHeader() {
                 <a href="#placar" className={styles.section}>
                     Placar
                 </a>
-                <Link href="/login">Entrar</Link>
-                <Link href="/registro" className={styles.cta}>
-                    Criar conta
-                </Link>
+                {status === "guest" && (
+                    <>
+                        <a href="#entrar">Entrar</a>
+                        <a href="#criar-conta" className={styles.cta}>
+                            Criar conta
+                        </a>
+                    </>
+                )}
+                {status === "authed" && user && (
+                    <>
+                        <span className={styles.user} title={user.email}>
+                            <span className={styles.userDot} aria-hidden="true" />
+                            {user.nickname}
+                        </span>
+                        <button type="button" className={styles.logout} onClick={signOut}>
+                            Sair
+                        </button>
+                    </>
+                )}
                 {canFullscreen && (
                     <button
                         type="button"
