@@ -82,6 +82,23 @@
   color: var(--hud);
 }
 
+/* vence a regra geral dos links do menu */
+.links a.user {
+  color: var(--hud);
+}
+
+.links a.user:hover {
+  color: #ffc766;
+}
+
+.userAvatar {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: cover;
+  border: 2px solid var(--hud);
+}
+
 .userDot {
   flex: none;
   width: 0.5rem;

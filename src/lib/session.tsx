@@ -13,6 +13,8 @@ type Session = {
   /** guarda a sessão depois de login/cadastro; remember=false some ao fechar o navegador */
   signIn: (response: AuthResponse, remember: boolean) => void;
   signOut: () => void;
+  /** atualiza os dados mostrados (ex.: depois de editar o perfil) */
+  updateUser: (changes: Partial<User>) => void;
 };
 
 const KEY = "hot:token";
@@ -81,7 +83,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setStatus("guest");
   }, []);
 
-  const value = useMemo(() => ({ status, user, token, signIn, signOut }), [status, user, token, signIn, signOut]);
+  const updateUser = useCallback((changes: Partial<User>) => {
+    setUser((u) => (u ? { ...u, ...changes } : u));
+  }, []);
+
+  const value = useMemo(
+    () => ({ status, user, token, signIn, signOut, updateUser }),
+    [status, user, token, signIn, signOut, updateUser],
+  );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 

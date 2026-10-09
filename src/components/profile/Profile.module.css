@@ -1,0 +1,301 @@
+/* ---------- Página do perfil ---------- */
+.page {
+  min-height: 100svh;
+  padding-bottom: 4rem;
+  background: var(--blood);
+}
+
+/* banner 3:1 no topo, atrás do menu fixo */
+.banner {
+  position: relative;
+  aspect-ratio: 3 / 1;
+  max-height: 420px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--blood-deep);
+}
+
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(20, 0, 0, 0.6) 0%, transparent 30%, transparent 60%, var(--blood) 100%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+
+.bannerImg,
+.bannerDefault {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bannerDefault {
+  object-position: 70% 60%;
+  filter: brightness(0.6) saturate(1.1);
+}
+
+.card {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.identity {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  margin-top: calc(-1 * clamp(56px, 9vw, 96px));
+}
+
+/* foto quadrada com moldura de HUD, sobreposta ao banner */
+.avatar {
+  flex: none;
+  position: relative;
+  z-index: 1;
+  width: clamp(112px, 18vw, 184px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--hellfire);
+  border: 4px solid var(--hud);
+  box-shadow:
+    0 0 0 4px var(--blood),
+    8px 8px 0 rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar span {
+  font-family: var(--font-pixel);
+  font-size: clamp(3rem, 7vw, 5rem);
+  color: var(--hud);
+  text-shadow: 0.06em 0.06em 0 #1a0101;
+}
+
+.names {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 0.4rem;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 0.95;
+  color: var(--bone);
+  overflow-wrap: anywhere;
+}
+
+.handle {
+  margin-top: 0.4rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  color: var(--hud);
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding-bottom: 0.4rem;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.primary {
+  background: var(--hud);
+  color: var(--blood-deep);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.primary:hover {
+  background: #ffc766;
+}
+
+.primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+.secondary {
+  border: 2px solid var(--bone-dim);
+  color: var(--bone);
+}
+
+.secondary:hover {
+  background: rgba(242, 227, 207, 0.08);
+}
+
+.secondary svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.toast {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 2;
+  max-width: min(22rem, 80vw);
+  padding: 0.5rem 0.75rem;
+  background: var(--hud);
+  color: var(--blood-deep);
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity 150ms,
+    transform 150ms;
+}
+
+.toast[data-show="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+.bio {
+  margin-top: 1.5rem;
+  max-width: 60ch;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--bone);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  color: var(--bone-dim);
+  font-style: italic;
+}
+
+.since {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+/* ---------- Estatísticas (placar do CS) ---------- */
+.stats {
+  max-width: 1000px;
+  margin: 3rem auto 0;
+  padding: 0 var(--gutter);
+}
+
+.stats h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--bone);
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1rem;
+  background: rgba(10, 0, 0, 0.55);
+  border: 1px solid rgba(255, 180, 58, 0.25);
+}
+
+.statGrid > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.25rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.statGrid > div + div {
+  border-left: 1px solid rgba(255, 180, 58, 0.15);
+}
+
+.statGrid dt {
+  font-size: 0.85rem;
+  color: var(--hud-dim);
+}
+
+.statGrid dd {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--hud);
+}
+
+.statsNote {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+/* ---------- Carregando / indisponível ---------- */
+.loading {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.unavailable {
+  padding-top: 8rem;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px) {
+  .banner {
+    aspect-ratio: 2 / 1;
+  }
+
+  .identity {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .names {
+    flex-basis: 100%;
+    padding-bottom: 0;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statGrid > div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .statGrid > div:nth-child(n + 3) {
+    border-top: 1px solid rgba(255, 180, 58, 0.15);
+  }
+
+  .toast {
+    left: 0;
+    right: auto;
+  }
+}

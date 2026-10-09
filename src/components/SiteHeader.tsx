@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { imageUrl } from "@/lib/profile-api";
 import { useSession } from "@/lib/session";
 import styles from "./SiteHeader.module.css";
 
@@ -67,12 +68,12 @@ export default function SiteHeader() {
             </Link>
 
             <nav className={styles.links} aria-label="Principal">
-                <a href="#modos" className={styles.section}>
+                <Link href="/#modos" className={styles.section}>
                     Modos
-                </a>
-                <a href="#placar" className={styles.section}>
+                </Link>
+                <Link href="/#placar" className={styles.section}>
                     Placar
-                </a>
+                </Link>
                 {status === "guest" && (
                     <>
                         <a href="#entrar">Entrar</a>
@@ -83,10 +84,19 @@ export default function SiteHeader() {
                 )}
                 {status === "authed" && user && (
                     <>
-                        <span className={styles.user} title={user.email}>
-                            <span className={styles.userDot} aria-hidden="true" />
+                        <Link
+                            href={`/perfil/${encodeURIComponent(user.nickname)}`}
+                            className={styles.user}
+                            title="Meu perfil"
+                        >
+                            {user.avatarUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={imageUrl(user.avatarUrl)!} alt="" className={styles.userAvatar} />
+                            ) : (
+                                <span className={styles.userDot} aria-hidden="true" />
+                            )}
                             {user.nickname}
-                        </span>
+                        </Link>
                         <button type="button" className={styles.logout} onClick={signOut}>
                             Sair
                         </button>

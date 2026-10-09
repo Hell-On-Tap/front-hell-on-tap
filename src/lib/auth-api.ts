@@ -2,13 +2,13 @@
  * Chamadas de autenticação para a api-hell-on-tap (NestJS).
  * Endpoints: POST /auth/login, POST /auth/register, GET /auth/me (Bearer).
  */
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export type LoginInput = { login: string; password: string; remember: boolean };
 export type RegisterInput = { nickname: string; email: string; password: string };
 export type AuthResponse = {
   accessToken: string;
-  user: { id: string; nickname: string; email: string };
+  user: { id: string; nickname: string; email: string; avatarUrl: string | null };
 };
 
 /** Erro com mensagem pronta para mostrar na tela. */
@@ -22,7 +22,7 @@ export class AuthError extends Error {
   }
 }
 
-async function request<T>(path: string, init: RequestInit): Promise<T> {
+export async function request<T>(path: string, init: RequestInit): Promise<T> {
   if (!API_URL) {
     console.warn("NEXT_PUBLIC_API_URL não definida: configure o endereço da API no .env.local");
     throw new AuthError("Login indisponível no momento: o servidor ainda não está conectado.");

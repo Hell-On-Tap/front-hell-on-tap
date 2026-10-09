@@ -1,0 +1,230 @@
+.dialog {
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bone);
+  width: 560px;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background:
+    radial-gradient(ellipse at center, rgba(60, 4, 4, 0.55), rgba(10, 0, 0, 0.88)),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px);
+  backdrop-filter: blur(3px);
+}
+
+.dialog[open] {
+  animation: open 260ms steps(5, end) both;
+}
+
+.panel {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(142, 11, 11, 0.35), transparent 30%),
+    #1c0202;
+  border: 2px solid var(--hud);
+  box-shadow:
+    0 0 0 4px #1c0202,
+    0 0 0 6px rgba(255, 180, 58, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head h2 {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 1.35rem;
+  color: var(--hud);
+  text-shadow: 0.08em 0.08em 0 #1a0101;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--bone-dim);
+}
+
+.close:hover {
+  color: var(--hud);
+  background: rgba(255, 180, 58, 0.1);
+}
+
+.close svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+/* ---------- Banner e foto ---------- */
+.media {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.banner {
+  position: relative;
+  aspect-ratio: 3 / 1;
+  overflow: hidden;
+  background: var(--blood-deep);
+  border: 1px solid rgba(255, 180, 58, 0.3);
+}
+
+.banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dim {
+  object-position: 70% 60%;
+  filter: brightness(0.55);
+}
+
+.mediaButtons {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.avatarRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-top: -3rem;
+  padding-left: 1rem;
+}
+
+.avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  background: var(--hellfire);
+  border: 3px solid var(--hud);
+  box-shadow: 0 0 0 3px #1c0202;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar span {
+  font-family: var(--font-pixel);
+  font-size: 2.6rem;
+  color: var(--hud);
+}
+
+.avatarButtons {
+  display: flex;
+  gap: 0.4rem;
+  padding-bottom: 0.25rem;
+}
+
+/* botões "Trocar"; o <input type=file> fica escondido dentro do <label> */
+.mediaBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--bone);
+  background: rgba(10, 0, 0, 0.75);
+  border: 1px solid rgba(255, 180, 58, 0.5);
+  cursor: var(--cursor-crosshair-open);
+}
+
+.mediaBtn:hover {
+  border-color: var(--hud);
+  color: var(--hud);
+}
+
+.mediaBtn:focus-within {
+  outline: 2px solid var(--hud);
+  outline-offset: 2px;
+}
+
+.mediaBtn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* ---------- Campos ---------- */
+.fields {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.textarea {
+  min-height: 6rem;
+  padding: 0.6rem 0.85rem;
+  resize: vertical;
+  line-height: 1.5;
+  cursor: text;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.footer > button[type="submit"] {
+  padding: 0 1.5rem;
+}
+
+.cancel {
+  font-weight: 600;
+  color: var(--bone-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cancel:hover {
+  color: var(--bone);
+}
+
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (max-width: 480px) {
+  .panel {
+    padding: 1rem;
+  }
+
+  .avatarRow {
+    flex-wrap: wrap;
+    padding-left: 0.5rem;
+  }
+}
