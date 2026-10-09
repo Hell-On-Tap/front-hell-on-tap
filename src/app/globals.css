@@ -1,40 +1,43 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Hell on Tap: vermelho dominante (Doom) + HUD âmbar (CS 1.6) */
+  --blood-deep: #240303;
+  --blood: #4a0808;
+  --hell: #8e0b0b;
+  --hellfire: #c8170e;
+  --ember: #ff5a1f;
+  --hud: #ffb43a;
+  --hud-dim: rgba(255, 180, 58, 0.55);
+  --bone: #f2e3cf;
+  --bone-dim: rgba(242, 227, 207, 0.72);
+
+  --font-display: "Big Shoulders", Impact, sans-serif;
+  --font-body: "Chakra Petch", system-ui, sans-serif;
+
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --max: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background: var(--blood);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  overflow-x: hidden;
 }
 
 a {
@@ -42,8 +45,32 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--hud);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--hud);
+  color: var(--blood-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
   html {
-    color-scheme: dark;
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -1,0 +1,128 @@
+/* menu de modos no formato do menu de compra do CS 1.6 */
+.menu {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  background: rgba(10, 0, 0, 0.55);
+  border: 1px solid rgba(255, 180, 58, 0.25);
+}
+
+.list {
+  list-style: none;
+  padding: 0.75rem 0;
+  border-right: 1px solid rgba(255, 180, 58, 0.25);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--hud);
+  transition: background 100ms;
+}
+
+.item:hover {
+  background: rgba(255, 180, 58, 0.08);
+}
+
+.item[aria-pressed="true"] {
+  background: var(--hud);
+  color: var(--blood-deep);
+}
+
+.item[data-available="false"] {
+  color: rgba(255, 120, 90, 0.75);
+}
+
+.item[data-available="false"][aria-pressed="true"] {
+  background: rgba(255, 90, 31, 0.25);
+  color: var(--bone);
+}
+
+.key {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  min-width: 1ch;
+  line-height: 1;
+}
+
+.itemName {
+  flex: 1;
+}
+
+.soon {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.detail {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.detail h3 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1;
+  color: var(--bone);
+}
+
+.description {
+  margin-top: 0.75rem;
+  font-size: 1.15rem;
+  color: var(--bone);
+  max-width: 40ch;
+}
+
+.extra {
+  margin-top: 0.5rem;
+  color: var(--bone-dim);
+  max-width: 44ch;
+}
+
+.play,
+.locked {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 1.75rem;
+  padding: 0 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.play {
+  background: var(--hud);
+  color: var(--blood-deep);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.play:hover {
+  background: #ffc766;
+}
+
+.play:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+.locked {
+  border: 1px dashed rgba(255, 120, 90, 0.6);
+  color: rgba(255, 120, 90, 0.9);
+}
+
+@media (max-width: 720px) {
+  .menu {
+    grid-template-columns: 1fr;
+  }
+  .list {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 180, 58, 0.25);
+  }
+}
