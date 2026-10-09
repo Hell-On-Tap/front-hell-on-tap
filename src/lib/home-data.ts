@@ -1,5 +1,11 @@
 export const GAME_URL = process.env.NEXT_PUBLIC_GAME_URL ?? "http://localhost:3000";
 
+/**
+ * Conta obrigatória: não existe partida como visitante.
+ * Todo "jogar" passa pelo login; depois de autenticado, o front leva ao jogo com o token.
+ */
+export const PLAY_HREF = "/login";
+
 export type GameMode = {
   key: string;
   name: string;
@@ -16,7 +22,7 @@ export const MODES: GameMode[] = [
     description: "Crie uma sala, mande o link e jogue com até 10 amigos.",
     detail: "Respawn em 2,5 s, 25 armas liberadas e headshot causando 4× o dano.",
     available: true,
-    href: GAME_URL,
+    href: PLAY_HREF,
   },
   {
     key: "2",
@@ -24,7 +30,7 @@ export const MODES: GameMode[] = [
     description: "Aqueça a mira contra bots, sem precisar de sala.",
     detail: "Roda no seu navegador e pausa quando você abre o menu.",
     available: true,
-    href: GAME_URL,
+    href: PLAY_HREF,
   },
   {
     key: "3",

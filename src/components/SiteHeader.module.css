@@ -1,0 +1,116 @@
+/* menu fixo: transparente sobre a imagem do topo, escuro ao rolar */
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem var(--gutter);
+  border-bottom: 1px solid transparent;
+  transition:
+    padding 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.header[data-scrolled="true"] {
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+  background: rgba(24, 2, 2, 0.88);
+  border-bottom-color: rgba(255, 180, 58, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--hud);
+}
+
+.mark {
+  width: auto;
+  height: 2.1rem;
+  filter: drop-shadow(0 0 2px rgba(255, 140, 70, 0.9));
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2.5vw, 2rem);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.links a:not(.cta) {
+  color: var(--bone-dim);
+  transition: color 120ms;
+}
+
+.links a:not(.cta):hover {
+  color: var(--bone);
+}
+
+.cta {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--hud-dim);
+  color: var(--hud);
+}
+
+.cta:hover {
+  background: rgba(255, 180, 58, 0.12);
+}
+
+.fullscreen {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: -0.25rem;
+  color: var(--bone-dim);
+  border: 1px solid rgba(242, 227, 207, 0.25);
+  transition:
+    color 120ms,
+    border-color 120ms,
+    background-color 120ms;
+}
+
+.fullscreen:hover {
+  color: var(--hud);
+  border-color: var(--hud-dim);
+  background: rgba(255, 180, 58, 0.1);
+}
+
+.fullscreen[aria-pressed="true"] {
+  color: var(--hud);
+  border-color: var(--hud-dim);
+}
+
+.fullscreen svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+@media (max-width: 640px) {
+  .section {
+    display: none;
+  }
+
+  .links {
+    gap: 0.75rem;
+  }
+
+  .fullscreen {
+    margin-left: 0;
+  }
+}

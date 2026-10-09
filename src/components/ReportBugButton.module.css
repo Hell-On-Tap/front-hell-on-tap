@@ -1,0 +1,92 @@
+/* aba vertical presa na borda direita */
+.tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 0.55rem;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%) rotate(180deg);
+  background: rgba(24, 2, 2, 0.9);
+  border: 1px solid rgba(255, 180, 58, 0.45);
+  border-left: 0;
+  color: var(--hud);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  transition:
+    background-color 120ms,
+    padding 120ms;
+}
+
+.tab:hover {
+  background: var(--hellfire);
+  color: var(--bone);
+  padding-right: 0.8rem;
+}
+
+.tab:active {
+  background: var(--ember);
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  transform: rotate(180deg);
+  shape-rendering: crispEdges;
+}
+
+/* aviso ao lado da aba */
+.toast {
+  position: fixed;
+  right: 3rem;
+  top: 50%;
+  z-index: 45;
+  max-width: min(18rem, calc(100vw - 4rem));
+  padding: 0.6rem 0.85rem;
+  transform: translate(12px, -50%);
+  background: var(--hud);
+  color: var(--blood-deep);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms,
+    transform 160ms;
+}
+
+.toast[data-show="true"] {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* celular: só o ícone, acima da barra do player */
+@media (max-width: 640px) {
+  .tab {
+    top: auto;
+    bottom: 5.5rem;
+    transform: rotate(180deg);
+    padding: 0.6rem 0.45rem;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .toast {
+    top: auto;
+    bottom: 5.5rem;
+    transform: translateX(12px);
+  }
+
+  .toast[data-show="true"] {
+    transform: none;
+  }
+}

@@ -46,7 +46,7 @@ export default function ModeMenu() {
         <p className={styles.extra}>{mode.detail}</p>
         {mode.available && mode.href ? (
           <a href={mode.href} className={styles.play}>
-            Jogar {mode.name.toLowerCase()}
+            Entrar e jogar
           </a>
         ) : (
           <span className={styles.locked}>Ainda não disponível</span>

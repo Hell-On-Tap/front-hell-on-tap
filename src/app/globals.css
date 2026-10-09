@@ -10,10 +10,13 @@
   --bone: #f2e3cf;
   --bone-dim: rgba(242, 227, 207, 0.72);
 
-  --font-display: "Big Shoulders", Impact, sans-serif;
-  --font-body: "Chakra Petch", system-ui, sans-serif;
+  /* As fontes (--font-display, --font-body, --font-pixel) vêm do layout.tsx
+     via next/font. Não defina valores aqui: o :root sobrescreveria a fonte escolhida. */
 
   --gutter: clamp(1rem, 4vw, 3rem);
+
+  /* duração da abertura em pixels: as animações de entrada esperam por ela */
+  --boot: 1300ms;
   --max: 1200px;
 }
 
@@ -91,7 +94,48 @@ textarea {
   cursor: text;
 }
 
+/* ---------- Barra de rolagem ---------- */
+/* Chrome, Edge e Safari: trilho de sangue, alça vermelha com borda de HUD */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--blood-deep);
+  border-left: 1px solid rgba(255, 180, 58, 0.12);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, var(--hellfire), var(--hell));
+  border: 3px solid var(--blood-deep);
+  box-shadow: inset 0 0 0 1px rgba(255, 180, 58, 0.35);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to right, var(--ember), var(--hellfire));
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--hud);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--blood-deep);
+}
+
+/* Firefox só aceita as cores */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-color: var(--hellfire) var(--blood-deep);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --boot: 0ms;
+  }
+
   html {
     scroll-behavior: auto;
   }
