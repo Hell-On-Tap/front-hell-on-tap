@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import ProfileView, { ProfileSkeleton, ProfileUnavailable } from "@/components/profile/ProfileView";
 import SiteHeader from "@/components/SiteHeader";
-import { fetchProfile, imageUrl, type Profile } from "@/lib/profile-api";
+import { clansOfProfile, type ProfileClan } from "@/lib/clan-api";
+import { fetchProfile, imageUrl, normalizeLayout, type Profile } from "@/lib/profile-api";
 
 type Props = { params: Promise<{ nickname: string }> };
 
@@ -44,5 +45,8 @@ async function ProfileContent({ params }: Props) {
   if (!profile) notFound();
   // /perfil/IGOR vira /perfil/Igor (endereço oficial, como a pessoa escreveu)
   if (profile.nickname !== nickname) redirect(`/perfil/${encodeURIComponent(profile.nickname)}`);
-  return <ProfileView profile={profile} />;
+  // clãs são extra: se falhar, o perfil aparece mesmo assim (e nem busca se a seção estiver oculta)
+  const showClans = normalizeLayout(profile.layout).some((s) => s.id === "clans" && s.visible);
+  const clans: ProfileClan[] = showClans ? await clansOfProfile(profile.nickname).catch(() => []) : [];
+  return <ProfileView profile={profile} clans={clans} />;
 }

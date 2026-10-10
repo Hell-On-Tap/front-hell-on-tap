@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { setPlayerMode, usePlayerMode, usePlayerPlaying } from "@/lib/player-store";
 import { imageUrl } from "@/lib/profile-api";
 import { useSession } from "@/lib/session";
+import { myInvites } from "@/lib/clan-api";
+import { FRIENDS_CHANGED, myFriends } from "@/lib/friends-api";
 import styles from "./SiteHeader.module.css";
 
 // ---- tela cheia: estado vem do próprio navegador ----
@@ -25,7 +28,45 @@ function toggleFullscreen() {
 }
 
 export default function SiteHeader() {
-    const { status, user, signOut } = useSession();
+    const { status, user, signOut, token } = useSession();
+    const playerOpen = usePlayerMode() === "open";
+    const playing = usePlayerPlaying();
+    const [inviteCount, setInvites] = useState(0);
+    const [requestCount, setRequests] = useState(0);
+    // sem login, nada de convites nem pedidos
+    const invites = token ? inviteCount : 0;
+    const friendRequests = token ? requestCount : 0;
+
+    // convites de clã recebidos (atualiza ao voltar para a aba e quando um convite é respondido)
+    useEffect(() => {
+        if (!token) return;
+        let cancelled = false;
+        const load = () =>
+            myInvites(token)
+                .then((list) => !cancelled && setInvites(list.length))
+                .catch(() => {});
+        // pedidos de amizade recebidos (contador do link Lobby)
+        const loadFriends = () =>
+            myFriends(token)
+                .then((f) => !cancelled && setRequests(f.incoming.length))
+                .catch(() => {});
+        const loadAll = () => {
+            load();
+            loadFriends();
+        };
+        loadAll();
+        const timer = setInterval(loadFriends, 60_000);
+        window.addEventListener("focus", loadAll);
+        window.addEventListener("hot:invites-changed", load);
+        window.addEventListener(FRIENDS_CHANGED, loadFriends);
+        return () => {
+            cancelled = true;
+            clearInterval(timer);
+            window.removeEventListener("focus", loadAll);
+            window.removeEventListener("hot:invites-changed", load);
+            window.removeEventListener(FRIENDS_CHANGED, loadFriends);
+        };
+    }, [token]);
     const [scrolled, setScrolled] = useState(false);
     const isFullscreen = useSyncExternalStore(
         subscribeFullscreen,
@@ -64,15 +105,36 @@ export default function SiteHeader() {
         <header className={styles.header} data-scrolled={scrolled}>
             <Link href="/" className={styles.logo} aria-label="Hell on Tap, início">
                 <Image src="/logo-pixel.png" alt="" width={1254} height={1254} className={styles.mark} priority />
-                HOT
+                <span className={styles.logoText}>HOT</span>
             </Link>
 
             <nav className={styles.links} aria-label="Principal">
-                <Link href="/#modos" className={styles.section}>
-                    Modos
-                </Link>
-                <Link href="/#placar" className={styles.section}>
-                    Placar
+                {status === "authed" ? (
+                    <Link href="/lobby" className={styles.clans}>
+                        Lobby
+                        {friendRequests > 0 && (
+                            <span className={styles.inviteBadge} aria-label={`${friendRequests} pedido(s) de amizade`}>
+                                {friendRequests}
+                            </span>
+                        )}
+                    </Link>
+                ) : (
+                    <>
+                        <Link href="/#modos" className={styles.section}>
+                            Modos
+                        </Link>
+                        <Link href="/#placar" className={styles.section}>
+                            Placar
+                        </Link>
+                    </>
+                )}
+                <Link href="/clans" className={styles.clans}>
+                    Clãs
+                    {invites > 0 && (
+                        <span className={styles.inviteBadge} aria-label={`${invites} convite(s) de clã`}>
+                            {invites}
+                        </span>
+                    )}
                 </Link>
                 {status === "guest" && (
                     <>
@@ -102,6 +164,25 @@ export default function SiteHeader() {
                         </button>
                     </>
                 )}
+                <button
+                    type="button"
+                    className={`${styles.fullscreen} ${styles.music}`}
+                    onClick={() => setPlayerMode(playerOpen ? "hidden" : "open")}
+                    aria-label={playerOpen ? "Ocultar player de música" : "Mostrar player de música"}
+                    aria-pressed={playerOpen}
+                    title={playerOpen ? "Ocultar player" : "Mostrar player"}
+                    data-playing={playing}
+                >
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M6 2h8v9.5a2.5 2.5 0 1 1-2-2.45V5H8v7.5A2.5 2.5 0 1 1 6 10.05z" />
+                    </svg>
+                    {/* equalizador: aparece enquanto a música toca */}
+                    <span className={styles.eq} aria-hidden="true">
+                        <i />
+                        <i />
+                        <i />
+                    </span>
+                </button>
                 {canFullscreen && (
                     <button
                         type="button"

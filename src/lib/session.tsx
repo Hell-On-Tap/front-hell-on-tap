@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AuthError, me, type AuthResponse } from "./auth-api";
+import { heartbeat } from "./friends-api";
 
 type User = AuthResponse["user"];
 type Status = "loading" | "guest" | "authed";
@@ -68,6 +69,19 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  // "estou online": avisa a API a cada minuto enquanto a aba está aberta e visível
+  useEffect(() => {
+    if (!token) return;
+    const beat = () => document.visibilityState === "visible" && heartbeat(token).catch(() => {});
+    beat();
+    const timer = setInterval(beat, 60_000);
+    document.addEventListener("visibilitychange", beat);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", beat);
+    };
+  }, [token]);
 
   const signIn = useCallback((response: AuthResponse, remember: boolean) => {
     writeToken(response.accessToken, remember);

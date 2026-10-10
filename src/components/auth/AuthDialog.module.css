@@ -43,13 +43,13 @@
 
 /* celular com o player na barra de baixo: o pop-up sobe para não ficar atrás dele */
 @media (max-width: 640px) {
-  :global(body:has([data-stay-active])) .dialog {
+  :global(body:has([data-stay-active]:not([hidden]))) .dialog {
     margin-top: 0.75rem;
     margin-bottom: 5.25rem;
     max-height: calc(100dvh - 6rem);
   }
 
-  :global(body:has([data-stay-active])) .panel {
+  :global(body:has([data-stay-active]:not([hidden]))) .panel {
     max-height: calc(100dvh - 6rem);
   }
 }

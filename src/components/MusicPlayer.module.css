@@ -19,6 +19,35 @@
   color: var(--bone);
 }
 
+/* escondido pelo menu ou fechado: some, mas o <audio> continua na página */
+.player[hidden] {
+  display: none;
+}
+
+/* X no canto do player */
+.close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--bone-dim);
+}
+
+.close:hover {
+  color: var(--hud);
+  background: rgba(255, 180, 58, 0.12);
+}
+
+.close svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  fill: currentColor;
+}
+
 .cover {
   grid-area: cover;
   width: 64px;
@@ -31,6 +60,7 @@
 .info {
   grid-area: info;
   min-width: 0;
+  padding-right: 1.25rem;
 }
 
 .title {

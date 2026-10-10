@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AuthResponse } from "@/lib/auth-api";
 import { useSession } from "@/lib/session";
@@ -33,6 +34,7 @@ export default function AuthDialog() {
   const [mode, setMode] = useState<Mode>("login");
   const [welcome, setWelcome] = useState<string | null>(null);
   const session = useSession();
+  const router = useRouter();
 
   // Pop-up "não modal" + inert no resto da página: assim o player fica de fora do bloqueio.
   const open = useCallback(() => {
@@ -114,7 +116,11 @@ export default function AuthDialog() {
   function onSuccess(res: AuthResponse, remember: boolean) {
     session.signIn(res, remember);
     setWelcome(res.user.nickname);
-    setTimeout(close, 1100);
+    // depois do "bem-vindo", leva ao lobby
+    setTimeout(() => {
+      close();
+      router.push("/lobby");
+    }, 1100);
   }
 
   return (

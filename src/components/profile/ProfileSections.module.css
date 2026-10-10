@@ -1,0 +1,451 @@
+/* ---------- Modo organizar ---------- */
+.board {
+  max-width: 1000px;
+  margin: 3rem auto 0;
+  padding: 0 var(--gutter);
+}
+
+.board[data-dragging="true"] {
+  user-select: none;
+  cursor: grabbing;
+}
+
+/* barra presa logo abaixo do menu enquanto rola */
+.bar {
+  position: sticky;
+  top: 4.6rem;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(28, 2, 2, 0.95);
+  border: 2px solid var(--hud);
+  box-shadow:
+    0 0 0 3px #1c0202,
+    0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.barText {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.barText strong {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: var(--hud);
+}
+
+.barText span {
+  font-size: 0.85rem;
+  color: var(--bone-dim);
+}
+
+.barActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reset,
+.cancel {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.reset {
+  color: var(--hud-dim);
+}
+
+.reset:hover:not(:disabled) {
+  color: var(--hud);
+}
+
+.reset:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cancel {
+  color: var(--bone-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cancel:hover {
+  color: var(--bone);
+}
+
+.save {
+  min-height: 2.5rem;
+  padding: 0 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  background: var(--hud);
+  color: var(--blood-deep);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.save:hover:not(:disabled) {
+  background: #ffc766;
+}
+
+.save:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+.save:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.error {
+  flex-basis: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--bone);
+  background: rgba(200, 23, 14, 0.3);
+  border-left: 3px solid #ff6a4d;
+}
+
+.listWrap {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.list {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* encaixe onde a seção arrastada vai cair */
+.slot {
+  position: absolute;
+  inset-inline: 0;
+  border: 2px dashed var(--hud);
+  background: repeating-linear-gradient(-45deg, rgba(255, 180, 58, 0.08) 0 10px, transparent 10px 20px);
+  background-size: 28px 28px;
+  animation: slot 900ms linear infinite;
+  pointer-events: none;
+  transition:
+    top 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 220ms;
+}
+
+.slot[hidden] {
+  display: none;
+}
+
+.item {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+  background: rgba(10, 0, 0, 0.45);
+  border: 2px dashed rgba(255, 180, 58, 0.35);
+}
+
+.item:hover {
+  border-color: rgba(255, 180, 58, 0.7);
+}
+
+/* seção sendo arrastada: "levantada", segue o ponteiro (o JS move e inclina) */
+.item[data-dragging="true"] {
+  z-index: 3;
+  border-style: solid;
+  border-color: var(--hud);
+  background: rgba(28, 2, 2, 0.97);
+  box-shadow:
+    0 0 0 3px rgba(255, 180, 58, 0.25),
+    0 28px 50px rgba(0, 0, 0, 0.65);
+}
+
+/* soltando: continua por cima enquanto assenta */
+.item[data-settling="true"] {
+  z-index: 2;
+}
+
+/* as outras seções recuam um pouco enquanto uma é arrastada */
+.board[data-dragging="true"] .item:not([data-dragging="true"]) {
+  opacity: 0.8;
+}
+
+.item:not([data-dragging="true"]) {
+  transition: opacity 150ms;
+}
+
+/* barra de cada seção: é por ela que se arrasta */
+.head {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 180, 58, 0.08);
+  border-bottom: 1px solid rgba(255, 180, 58, 0.2);
+  cursor: grab;
+  touch-action: none;
+}
+
+.item[data-dragging="true"] .head {
+  cursor: grabbing;
+  background: rgba(255, 180, 58, 0.18);
+}
+
+.grip svg {
+  display: block;
+  width: 0.7rem;
+  height: 1.1rem;
+  fill: var(--bone-dim);
+}
+
+.item:hover .grip svg,
+.item[data-dragging="true"] .grip svg {
+  fill: var(--hud);
+}
+
+.pos {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  color: var(--blood-deep);
+  background: var(--hud);
+}
+
+.item[data-hidden="true"] .pos {
+  background: var(--bone-dim);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--bone);
+}
+
+.badge {
+  padding: 0.1rem 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bone);
+  background: rgba(242, 227, 207, 0.15);
+}
+
+/* prévia da seção: baixa e sem cliques, para caber várias na tela */
+.body {
+  position: relative;
+  max-height: 220px;
+  overflow: hidden;
+  padding: 0 1rem 1rem;
+}
+
+.body::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3.5rem;
+  background: linear-gradient(transparent, rgba(30, 2, 2, 0.95));
+  pointer-events: none;
+}
+
+/* a seção já tem margem e título próprios; dentro do bloco, encolhe */
+.body > section {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.body > section > h2 {
+  display: none;
+}
+
+.item[data-hidden="true"] .body {
+  max-height: 140px;
+  opacity: 0.35;
+  filter: grayscale(0.8);
+}
+
+.placeholder {
+  padding-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+/* chave liga/desliga */
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: var(--cursor-crosshair-open);
+}
+
+.toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: inherit;
+}
+
+.track {
+  position: relative;
+  width: 2.5rem;
+  height: 1.35rem;
+  background: rgba(242, 227, 207, 0.15);
+  border: 2px solid var(--bone-dim);
+  transition: background 120ms;
+}
+
+.track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.35rem - 8px);
+  height: calc(1.35rem - 8px);
+  background: var(--bone-dim);
+  transition: transform 120ms steps(3, end);
+}
+
+.toggle input:checked + .track {
+  background: rgba(255, 180, 58, 0.25);
+  border-color: var(--hud);
+}
+
+.toggle input:checked + .track::after {
+  background: var(--hud);
+  transform: translateX(1.15rem);
+}
+
+.toggle input:focus-visible + .track {
+  outline: 2px solid var(--hud);
+  outline-offset: 2px;
+}
+
+.toggleText {
+  min-width: 3.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+}
+
+.toggle input:checked ~ .toggleText {
+  color: var(--hud);
+}
+
+.arrows {
+  display: flex;
+  gap: 2px;
+}
+
+.arrows button {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--bone);
+  background: rgba(242, 227, 207, 0.08);
+}
+
+.arrows button:hover:not(:disabled) {
+  color: var(--blood-deep);
+  background: var(--hud);
+}
+
+.arrows button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.arrows svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: currentColor;
+}
+
+.warn {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--hud);
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes slot {
+  to {
+    background-position: 28px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .bar {
+    top: 4rem;
+  }
+
+  .barActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .head {
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "grip pos label arrows"
+      "grip pos toggle arrows";
+    row-gap: 0.4rem;
+  }
+
+  .grip {
+    grid-area: grip;
+  }
+
+  .pos {
+    grid-area: pos;
+  }
+
+  .label {
+    grid-area: label;
+  }
+
+  .toggle {
+    grid-area: toggle;
+  }
+
+  .arrows {
+    grid-area: arrows;
+    flex-direction: column;
+  }
+}

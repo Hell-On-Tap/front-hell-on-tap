@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Big_Shoulders, Chakra_Petch, Silkscreen } from "next/font/google";
 import AuthDialog from "@/components/auth/AuthDialog";
+import MusicPlayer from "@/components/MusicPlayer";
 import PixelBoot from "@/components/PixelBoot";
 import ReportBugButton from "@/components/ReportBugButton";
+import { getPlaylist } from "@/lib/playlist";
 import { SessionProvider } from "@/lib/session";
 import "./globals.css";
 
@@ -29,13 +31,17 @@ export const metadata: Metadata = {
     description: "FPS retrô no navegador: mira de Counter-Strike 1.6, cara de Doom. Crie uma sala e jogue com os amigos.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+    // player no layout: aparece em todas as páginas e a música não recomeça ao navegar
+    const playlist = await getPlaylist();
+
     return (
         <html lang="pt-BR" className={`${display.variable} ${body.variable} ${pixel.variable}`}>
             <body>
                 <SessionProvider>
                     <PixelBoot />
                     {children}
+                    <MusicPlayer tracks={playlist} />
                     <ReportBugButton />
                     <AuthDialog />
                 </SessionProvider>

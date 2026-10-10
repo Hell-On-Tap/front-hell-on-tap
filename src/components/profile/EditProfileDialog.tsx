@@ -4,9 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AuthError } from "@/lib/auth-api";
 import { imageUrl, removeImage, updateProfile, uploadImage, type ImageKind, type MyProfile, type Profile } from "@/lib/profile-api";
-import { resizeImage } from "@/lib/resize-image";
+import type { Crop } from "@/lib/image-crop";
 import { useSession } from "@/lib/session";
 import { Field } from "../auth/fields";
+import ImageCropper from "../media/ImageCropper";
 import fieldStyles from "../auth/AuthDialog.module.css";
 import styles from "./EditProfileDialog.module.css";
 
@@ -15,8 +16,11 @@ const BIO_MAX = 300;
 /** tamanho final enviado para a API */
 const SIZES: Record<ImageKind, [number, number]> = { avatar: [400, 400], banner: [1500, 500] };
 
-/** null = não mexeu; "remove" = apagar; Blob = imagem nova já reduzida */
-type ImageChange = null | "remove" | { blob: Blob; preview: string };
+const CROP_TITLES: Record<ImageKind, string> = { avatar: "Enquadrar foto", banner: "Enquadrar banner" };
+
+/** null = não mexeu; "remove" = apagar; objeto = imagem nova já enquadrada (guarda o original para reajustar) */
+type ImageChange = null | "remove" | { blob: Blob; preview: string; file: File; crop: Crop };
+type Cropping = { kind: ImageKind; file: File; initial?: Crop };
 type Errors = Partial<Record<"nickname" | "displayName" | "bio" | "avatar" | "banner", string>>;
 
 export default function EditProfileDialog({ profile, onClose }: { profile: Profile; onClose: () => void }) {
@@ -31,20 +35,33 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [cropping, setCropping] = useState<Cropping | null>(null);
 
   useEffect(() => {
     dialogRef.current?.showModal();
   }, []);
 
-  // libera as prévias da memória
+  // libera as prévias da memória ao fechar
+  const imagesRef = useRef(images);
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
   useEffect(
     () => () => {
-      for (const change of Object.values(images)) {
+      for (const change of Object.values(imagesRef.current)) {
         if (change && change !== "remove") URL.revokeObjectURL(change.preview);
       }
     },
-    [images],
+    [],
   );
+
+  function setImage(kind: ImageKind, change: ImageChange) {
+    setImages((imgs) => {
+      const old = imgs[kind];
+      if (old && old !== "remove") URL.revokeObjectURL(old.preview);
+      return { ...imgs, [kind]: change };
+    });
+  }
 
   function preview(kind: ImageKind) {
     const change = images[kind];
@@ -53,19 +70,18 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
     return imageUrl(kind === "avatar" ? profile.avatarUrl : profile.bannerUrl);
   }
 
-  async function pick(kind: ImageKind, file: File | undefined) {
+  function pick(kind: ImageKind, input: HTMLInputElement) {
+    const file = input.files?.[0];
+    input.value = ""; // permite escolher o mesmo arquivo de novo
     if (!file) return;
     setErrors((e) => ({ ...e, [kind]: undefined }));
-    if (file.size > 15 * 1024 * 1024) {
-      setErrors((e) => ({ ...e, [kind]: "Escolha uma imagem de até 15 MB." }));
-      return;
-    }
-    try {
-      const blob = await resizeImage(file, ...SIZES[kind]);
-      setImages((imgs) => ({ ...imgs, [kind]: { blob, preview: URL.createObjectURL(blob) } }));
-    } catch (err) {
-      setErrors((e) => ({ ...e, [kind]: (err as Error).message }));
-    }
+    setCropping({ kind, file });
+  }
+
+  /** reabre o enquadramento de uma imagem escolhida agora (ainda não salva) */
+  function adjust(kind: ImageKind) {
+    const change = images[kind];
+    if (change && change !== "remove") setCropping({ kind, file: change.file, initial: change.crop });
   }
 
   async function save(e: React.FormEvent) {
@@ -111,6 +127,10 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
     }
   }
 
+  const isNew = (kind: ImageKind) => {
+    const change = images[kind];
+    return !!change && change !== "remove";
+  };
   const bannerSrc = preview("banner");
   const avatarSrc = preview("avatar");
 
@@ -140,10 +160,15 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
             <div className={styles.mediaButtons}>
               <label className={styles.mediaBtn}>
                 Trocar banner
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => pick("banner", e.target.files?.[0])} />
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => pick("banner", e.currentTarget)} />
               </label>
+              {isNew("banner") && (
+                <button type="button" className={styles.mediaBtn} onClick={() => adjust("banner")}>
+                  Ajustar
+                </button>
+              )}
               {bannerSrc && (
-                <button type="button" className={styles.mediaBtn} onClick={() => setImages((i) => ({ ...i, banner: "remove" }))}>
+                <button type="button" className={styles.mediaBtn} onClick={() => setImage("banner", "remove")}>
                   Remover
                 </button>
               )}
@@ -162,17 +187,25 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
             <div className={styles.avatarButtons}>
               <label className={styles.mediaBtn}>
                 Trocar foto
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => pick("avatar", e.target.files?.[0])} />
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => pick("avatar", e.currentTarget)} />
               </label>
+              {isNew("avatar") && (
+                <button type="button" className={styles.mediaBtn} onClick={() => adjust("avatar")}>
+                  Ajustar
+                </button>
+              )}
               {avatarSrc && (
-                <button type="button" className={styles.mediaBtn} onClick={() => setImages((i) => ({ ...i, avatar: "remove" }))}>
+                <button type="button" className={styles.mediaBtn} onClick={() => setImage("avatar", "remove")}>
                   Remover
                 </button>
               )}
             </div>
           </div>
           {(errors.avatar || errors.banner) && <p className={fieldStyles.error}>{errors.avatar ?? errors.banner}</p>}
-          <p className={fieldStyles.hint}>A foto é recortada em quadrado e o banner em 3:1, pelo centro.</p>
+          <p className={fieldStyles.hint}>
+            Ao escolher uma imagem você ajusta o enquadramento (foto quadrada, banner 3:1) e, se ela tiver fundo
+            transparente, escolhe a cor de fundo.
+          </p>
         </div>
 
         <div className={styles.fields}>
@@ -227,6 +260,22 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
           </button>
         </footer>
       </form>
+
+      {cropping && (
+        <ImageCropper
+          key={`${cropping.kind}-${cropping.file.name}-${cropping.file.lastModified}`}
+          file={cropping.file}
+          width={SIZES[cropping.kind][0]}
+          height={SIZES[cropping.kind][1]}
+          title={CROP_TITLES[cropping.kind]}
+          initial={cropping.initial}
+          onCancel={() => setCropping(null)}
+          onConfirm={({ blob, crop }) => {
+            setImage(cropping.kind, { blob, crop, file: cropping.file, preview: URL.createObjectURL(blob) });
+            setCropping(null);
+          }}
+        />
+      )}
     </dialog>
   );
 }

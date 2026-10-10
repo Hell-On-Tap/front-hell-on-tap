@@ -3,14 +3,20 @@
 import { useEffect, useState } from "react";
 import type { Profile } from "@/lib/profile-api";
 import { useSession } from "@/lib/session";
+import { useHydrated } from "@/lib/use-hydrated";
 import EditProfileDialog from "./EditProfileDialog";
+import FriendButton from "./FriendButton";
+import { setOrganizing, useOrganizing } from "@/lib/profile-organize";
 import styles from "./Profile.module.css";
 
 /** Compartilhar (todos) e editar (só o dono do perfil). */
 export default function ProfileActions({ profile }: { profile: Profile }) {
-  const { user } = useSession();
+  const session = useSession();
+  // só usa a sessão depois de montar (ver useHydrated)
+  const user = useHydrated() ? session.user : null;
   const [toast, setToast] = useState("");
   const [editing, setEditing] = useState(false);
+  const organizing = useOrganizing();
   const isOwner = user?.id === profile.id;
 
   useEffect(() => {
@@ -45,6 +51,30 @@ export default function ProfileActions({ profile }: { profile: Profile }) {
         <button type="button" className={styles.primary} onClick={() => setEditing(true)}>
           Editar perfil
         </button>
+      )}
+      {isOwner && (
+        <button
+          type="button"
+          className={styles.secondary}
+          onClick={() => {
+            setOrganizing(true);
+            // leva até as seções, que é onde se arrasta
+            requestAnimationFrame(() => {
+              const el = document.getElementById("profile-sections");
+              if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+            });
+          }}
+          disabled={organizing}
+          aria-pressed={organizing}
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M1 2h9v3H1zM1 7h14v3H1zM1 12h11v3H1zM12 1l3 3h-2v2h-2V4H9z" />
+          </svg>
+          Organizar
+        </button>
+      )}
+      {user && !isOwner && session.token && (
+        <FriendButton token={session.token} profileId={profile.id} nickname={profile.nickname} />
       )}
       <button type="button" className={styles.secondary} onClick={share}>
         <svg viewBox="0 0 16 16" aria-hidden="true">

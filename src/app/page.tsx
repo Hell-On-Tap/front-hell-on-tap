@@ -1,15 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
 import HeroVideo from "@/components/HeroVideo";
 import ModeMenu from "@/components/ModeMenu";
-import MusicPlayer from "@/components/MusicPlayer";
 import SiteHeader from "@/components/SiteHeader";
-import { getPlaylist } from "@/lib/playlist";
 import { AuthedOnly, GuestOnly, Nickname, PlayLink } from "@/components/AuthGate";
 import { HUD_STATS, SAMPLE_SCOREBOARD } from "@/lib/home-data";
 import styles from "./page.module.css";
 
-export default async function Home() {
-    const playlist = await getPlaylist();
+export default function Home() {
 
     return (
         <>
@@ -37,6 +35,11 @@ export default async function Home() {
                                     Criar conta
                                 </a>
                             </GuestOnly>
+                            <AuthedOnly>
+                                <Link href="/lobby" className={styles.secondary}>
+                                    Abrir lobby
+                                </Link>
+                            </AuthedOnly>
                         </div>
                         <GuestOnly>
                             <p className={styles.accountNote}>Para jogar é preciso ter uma conta.</p>
@@ -135,8 +138,6 @@ export default async function Home() {
                 </span>
                 <p>Hell on Tap, um jogo da 500ml Stories.</p>
             </footer>
-
-            <MusicPlayer tracks={playlist} />
         </>
     );
 }
