@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AuthError } from "@/lib/auth-api";
 import { onGameMessage, reloadGame, sendToGame, showGame, updateGame, useGameState, type Skin } from "@/lib/game-bridge";
 import { getRoom, savedSkin, storeSkin, type GameRoom } from "@/lib/game-api";
+import { equippedKnife, knifeChoice } from "@/lib/inventory";
 import { setGameActive } from "@/lib/player-store";
 import { useSession } from "@/lib/session";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -97,7 +98,7 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
   const join = useCallback(
     (skin?: string) => {
       setStage({ kind: "joining" });
-      sendToGame({ type: "hot:play", mode: "online", room, skin: skin ?? savedSkin() });
+      sendToGame({ type: "hot:play", mode: "online", room, skin: skin ?? savedSkin(), knife: knifeChoice(equippedKnife()) });
     },
     [room],
   );
@@ -107,7 +108,7 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
     if (!authed || needsRoom || game.phase !== "ready" || stage.kind !== "checking") return;
     let cancelled = false;
     if (mode === "bots") {
-      sendToGame({ type: "hot:play", mode: "bots" });
+      sendToGame({ type: "hot:play", mode: "bots", knife: knifeChoice(equippedKnife()) });
       showGame(true);
       Promise.resolve().then(() => !cancelled && setStage({ kind: "playing" }));
       return () => {
@@ -246,7 +247,11 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
 }
 
 /** Partida já começou: escolhe o personagem e entra (nada de cair direto no jogo). */
-function InProgress({ meta, onEnter, onLeave }: { meta: GameRoom; onEnter: (skin: string) => void; onLeave: () => void }) {
+function InProgress({ meta, onEnter, onLeave }: {
+  meta: GameRoom;
+  onEnter: (skin: string) => void;
+  onLeave: () => void;
+}) {
   const game = useGameState();
   const [skin, setSkin] = useState(() => savedSkin() ?? game.skins[0]?.id ?? "");
   const full = meta.players >= meta.maxPlayers;

@@ -156,7 +156,6 @@ export default function Lobby() {
                     {requests}
                   </span>
                 )}
-                {t.id === "inventario" && <span className={styles.soon}>Em breve</span>}
               </button>
             ))}
           </nav>

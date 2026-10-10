@@ -12,6 +12,7 @@ import {
   type Skin,
 } from "@/lib/game-bridge";
 import { savedSkin, storeSkin } from "@/lib/game-api";
+import { addPreviews, clearInventory, loadInventory } from "@/lib/inventory";
 import { useGameUrl } from "@/lib/game-url";
 import { useGameActive } from "@/lib/player-store";
 import { useSession } from "@/lib/session";
@@ -53,6 +54,12 @@ function GameFrameHost({ base, token, nickname }: { base: string; token: string;
     }
   }, [token, nickname, origin]);
 
+  // outra conta (ou saiu): o inventário é recarregado quando o jogo ficar pronto
+  useEffect(() => {
+    if (ready.current) void loadInventory(token);
+    return () => clearInventory();
+  }, [token]);
+
   useEffect(() => {
     onGameReload(() => setAttempt((n) => n + 1));
     return () => onGameReload(null);
@@ -84,9 +91,17 @@ function GameFrameHost({ base, token, nickname }: { base: string; token: string;
       } else if (data.type === "hot:idle") {
         ready.current = true;
         clearTimeout(stall);
-        updateGame({ phase: "ready", skins: Array.isArray(data.skins) ? (data.skins as Skin[]) : [] });
+        // jogo pronto: inventário da conta (o jogo recebe as facas e a equipada)
+        void loadInventory(authRef.current.token);
+        updateGame({
+          phase: "ready",
+          skins: Array.isArray(data.skins) ? (data.skins as Skin[]) : [],
+          knives: Array.isArray(data.knives) ? (data.knives as Skin[]) : [],
+        });
       } else if (data.type === "hot:skin-saved" && typeof data.skin === "string") {
         storeSkin(data.skin);
+      } else if (data.type === "hot:previews" && data.images && typeof data.images === "object") {
+        addPreviews(data.images as Record<string, string>);
       }
       emitGameMessage(data);
     };

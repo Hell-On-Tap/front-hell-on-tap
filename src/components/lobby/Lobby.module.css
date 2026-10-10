@@ -312,17 +312,6 @@
   box-shadow: 0 0 8px rgba(255, 90, 31, 0.7);
 }
 
-.soon {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--bone-dim);
-  border: 1px solid rgba(242, 227, 207, 0.25);
-  padding: 0.05rem 0.3rem;
-}
-
 .panel {
   min-height: 28rem;
   padding: 1.5rem;
@@ -854,79 +843,6 @@ summary.blockTitle {
   gap: 0.75rem;
 }
 
-/* ---------- Inventário (em breve) ---------- */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.chip {
-  padding: 0.3rem 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--bone-dim);
-  border: 1px solid rgba(242, 227, 207, 0.2);
-}
-
-.chip:first-child {
-  color: var(--blood-deep);
-  background: var(--hud-dim);
-  border-color: transparent;
-}
-
-.inventory {
-  position: relative;
-  margin-top: 1rem;
-}
-
-.slots {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 0.5rem;
-  padding: 0;
-  list-style: none;
-}
-
-.slot {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 180, 58, 0.04) 0 6px, transparent 6px 12px),
-    rgba(10, 0, 0, 0.55);
-  border: 1px dashed rgba(255, 180, 58, 0.25);
-}
-
-.slot svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  fill: rgba(255, 180, 58, 0.3);
-}
-
-.inventoryNote {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  display: grid;
-  gap: 0.35rem;
-  width: min(26rem, 90%);
-  padding: 1.25rem 1.5rem;
-  text-align: center;
-  font-size: 0.92rem;
-  color: var(--bone-dim);
-  background: rgba(28, 2, 2, 0.95);
-  border: 2px solid var(--hud);
-  box-shadow: 0 0 0 4px var(--blood-deep);
-  transform: translate(-50%, -50%);
-}
-
-.inventoryNote strong {
-  font-family: var(--font-pixel);
-  font-weight: 400;
-  font-size: 1.1rem;
-  color: var(--hud);
-}
 
 /* ---------- Placar ---------- */
 .board {
@@ -1039,10 +955,6 @@ summary.blockTitle {
   .tab[aria-selected="true"] {
     background: rgba(255, 180, 58, 0.1);
     border-bottom-color: var(--hud);
-  }
-
-  .soon {
-    display: none;
   }
 
   .panel {

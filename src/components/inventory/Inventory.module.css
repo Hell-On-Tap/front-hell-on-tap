@@ -1,0 +1,251 @@
+/* ---------- inventário (aba do lobby) ---------- */
+.content {
+  margin-top: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.lead {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--bone-dim);
+}
+
+.lead a {
+  color: var(--hud);
+}
+
+.sort {
+  display: grid;
+  gap: 0.3rem;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--hud);
+}
+
+.sort select {
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  font: inherit;
+  font-family: var(--font-body, inherit);
+  font-size: 0.85rem;
+  color: var(--bone);
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 180, 58, 0.3);
+}
+
+.error {
+  margin-top: 1rem;
+  padding: 0.7rem 0.85rem;
+  background: rgba(200, 23, 14, 0.3);
+  border-left: 3px solid #ff6a4d;
+}
+
+.section {
+  margin-top: 1.75rem;
+}
+
+.section h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  color: var(--bone);
+}
+
+.count {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--hud);
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.slot {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 180, 58, 0.25);
+}
+
+.slotName {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--hud);
+  text-transform: uppercase;
+}
+
+.slotImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: radial-gradient(ellipse at 50% 70%, rgba(255, 180, 58, 0.12), transparent 70%);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+
+.item {
+  --rarity: #b0c3d9;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.6));
+  border: 2px solid rgba(242, 227, 207, 0.12);
+  border-bottom: 4px solid var(--rarity);
+}
+
+.item[data-equipped="true"] {
+  border-color: var(--hud);
+  border-bottom-color: var(--rarity);
+}
+
+.itemArt {
+  position: relative;
+  background: radial-gradient(ellipse at 50% 75%, color-mix(in srgb, var(--rarity) 22%, transparent), transparent 70%);
+}
+
+.itemArt img,
+.artEmpty {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.badge {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  color: #1a0101;
+  background: var(--hud);
+}
+
+.itemBody {
+  display: grid;
+  gap: 0.25rem;
+  align-content: start;
+}
+
+.weapon {
+  font-size: 0.75rem;
+  color: var(--bone-dim);
+}
+
+.skin {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--bone);
+}
+
+.rarity {
+  font-size: 0.72rem;
+  color: var(--rarity);
+}
+
+.pattern {
+  font-size: 0.7rem;
+  color: var(--bone-dim);
+}
+
+.primary,
+.ghost {
+  min-height: 2.4rem;
+  padding: 0 1rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.primary {
+  color: #1a0101;
+  background: var(--hud);
+  border: 2px solid var(--hud);
+}
+
+.ghost {
+  color: var(--bone-dim);
+  background: transparent;
+  border: 2px solid rgba(242, 227, 207, 0.3);
+}
+
+.primary:disabled,
+.ghost:disabled {
+  opacity: 0.6;
+}
+
+/* barra do desgaste (float), faixas do CS */
+.wear {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.wearTrack {
+  position: relative;
+  display: flex;
+  height: 6px;
+}
+
+.wearCompact .wearTrack {
+  height: 4px;
+}
+
+.wearZone[data-zone="0"] { background: #3aa655; }
+.wearZone[data-zone="1"] { background: #8fbf3a; }
+.wearZone[data-zone="2"] { background: #e0c33a; }
+.wearZone[data-zone="3"] { background: #e07b2b; }
+.wearZone[data-zone="4"] { background: #c8170e; }
+
+.wearMark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--bone);
+  box-shadow: 0 0 0 1px #1a0101;
+}
+
+.wearText {
+  font-size: 0.72rem;
+  color: var(--bone-dim);
+}
+
+.wearText strong {
+  color: var(--bone);
+  font-weight: 600;
+}

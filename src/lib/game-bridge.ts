@@ -16,12 +16,14 @@ export type GameState = {
   done: number;
   total: number;
   skins: Skin[];
+  /** skins da faca (prévias vindas do jogo) */
+  knives: Skin[];
   /** o iframe está na tela (partida aberta) */
   visible: boolean;
 };
 export type GameMessage = { type: string } & Record<string, unknown>;
 
-let state: GameState = { phase: "off", done: 0, total: 0, skins: [], visible: false };
+let state: GameState = { phase: "off", done: 0, total: 0, skins: [], knives: [], visible: false };
 const listeners = new Set<() => void>();
 const messageListeners = new Set<(message: GameMessage) => void>();
 let target: { window: Window; origin: string } | null = null;
