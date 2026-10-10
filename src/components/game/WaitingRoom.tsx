@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useFriends } from "@/components/lobby/use-friends";
 import { AuthError } from "@/lib/auth-api";
 import { getRoom, inviteToRoom, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
+import type { Skin } from "@/lib/game-bridge";
 import { PrivacyBadge, RoomSettingsFields } from "./RoomSettings";
+import SkinPicker from "./SkinPicker";
 import styles from "./Rooms.module.css";
 
 /** O que o jogo conta sobre a sala (mensagem `hot:room`). */
@@ -14,7 +16,6 @@ export type LiveRoom = {
   started: boolean;
   players: { id: string; name: string; skin: string; isHost: boolean; you: boolean }[];
 };
-export type Skin = { id: string; label: string; image: string };
 
 type Props = {
   token: string;
@@ -205,27 +206,7 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
               </ul>
             </section>
 
-            {skins.length > 0 && (
-              <section className={styles.card} aria-labelledby="wr-skin">
-                <div className={styles.cardHead}>
-                  <h2 id="wr-skin">SEU PERSONAGEM</h2>
-                  <span>{skinOf(mySkin)?.label}</span>
-                </div>
-                <div className={styles.skins} role="group" aria-labelledby="wr-skin">
-                  {skins.map((s) => (
-                    <button key={s.id} type="button" className={styles.skin} aria-pressed={s.id === mySkin} onClick={() => onSkin(s.id)}>
-                      {s.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={s.image} alt="" className={styles.sprite} />
-                      ) : (
-                        <span className={styles.sprite} />
-                      )}
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
+            <SkinPicker skins={skins} value={mySkin} onChange={onSkin} />
           </div>
 
           <section className={styles.card} aria-labelledby="wr-friends">

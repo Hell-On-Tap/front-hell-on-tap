@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Big_Shoulders, Chakra_Petch, Silkscreen } from "next/font/google";
 import AuthDialog from "@/components/auth/AuthDialog";
+import GameHost from "@/components/game/GameHost";
 import MusicPlayer from "@/components/MusicPlayer";
 import PixelBoot from "@/components/PixelBoot";
 import ReportBugButton from "@/components/ReportBugButton";
@@ -41,6 +42,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <SessionProvider>
                     <PixelBoot />
                     {children}
+                    {/* jogo carregado desde o login: entrar numa sala não recarrega */}
+                    <GameHost />
                     <MusicPlayer tracks={playlist} />
                     <ReportBugButton />
                     <AuthDialog />

@@ -2,114 +2,158 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { savedSkin, storeSkin } from "@/lib/game-api";
-import { useGameUrl } from "@/lib/game-url";
+import { useCallback, useEffect, useState } from "react";
+import { AuthError } from "@/lib/auth-api";
+import { onGameMessage, reloadGame, sendToGame, showGame, updateGame, useGameState, type Skin } from "@/lib/game-bridge";
+import { getRoom, savedSkin, storeSkin, type GameRoom } from "@/lib/game-api";
 import { setGameActive } from "@/lib/player-store";
 import { useSession } from "@/lib/session";
 import { useHydrated } from "@/lib/use-hydrated";
-import WaitingRoom, { type LiveRoom, type Skin } from "./WaitingRoom";
+import { PrivacyBadge } from "./RoomSettings";
+import SkinPicker from "./SkinPicker";
+import WaitingRoom, { type LiveRoom } from "./WaitingRoom";
 import styles from "./GameFrame.module.css";
-
-/** Tempo para o jogo responder antes de mostrar o aviso de "não abriu". */
-const LOAD_TIMEOUT = 15_000;
+import rooms from "./Rooms.module.css";
 
 /**
- * O jogo (servidor 500mldoom) roda num iframe em tela cheia. Quando ele avisa que
- * está pronto (`hot:ready`), o site manda a conta logada (`hot:auth`): o token só
- * vai para o servidor do jogo, que confere na API. `hot:exit` volta para o lobby.
+ * Página da partida (/jogar). O jogo já está carregado desde o login (GameHost,
+ * no layout): aqui o site manda abrir a sala ou o treino e mostra o jogo quando
+ * a partida começa.
  *
- * Online, a sala de espera é do site (WaitingRoom, por cima do jogo): o jogo conta
- * quem está na sala (`hot:room`) e o site manda `hot:skin`, `hot:start` e `hot:leave`.
- * Quando a partida começa (`hot:started`), a sala de espera some e o jogo aparece.
+ * Online, antes do jogo aparecer, sempre há uma tela do site: a sala de espera
+ * (partida ainda não começou) ou a escolha de personagem com "Entrar na partida"
+ * (partida já rolando). `hot:exit` (Voltar ao menu, dentro do jogo) volta ao lobby.
  */
 export default function GameFrame() {
   const params = useSearchParams();
-  const router = useRouter();
-  const hydrated = useHydrated();
-  const { status, token, user } = useSession();
-  const frameRef = useRef<HTMLIFrameElement>(null);
-  const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
-  const [attempt, setAttempt] = useState(0);
-  const [live, setLive] = useState<LiveRoom | null>(null);
-  const [skins, setSkins] = useState<Skin[]>([]);
-  const [mySkin, setMySkin] = useState("");
-  const [started, setStarted] = useState(false);
-  const [gameError, setGameError] = useState("");
-
   const mode = params.get("modo") === "bots" ? "bots" : "online";
   const roomParam = (params.get("sala") ?? "").toUpperCase();
   const room = /^[A-Z0-9]{6}$/.test(roomParam) ? roomParam : "";
+  // outra sala na mesma página: começa do zero
+  return <GameSession key={`${mode}:${room}`} mode={mode} room={room} />;
+}
+
+type Stage =
+  | { kind: "checking" }
+  | { kind: "joining" }
+  | { kind: "waiting" }
+  | { kind: "inProgress"; meta: GameRoom }
+  | { kind: "playing" }
+  | { kind: "error"; title: string; message: string };
+
+function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) {
+  const router = useRouter();
+  const hydrated = useHydrated();
+  const { status, token, user } = useSession();
+  const game = useGameState();
+  const [stage, setStage] = useState<Stage>({ kind: "checking" });
+  const [live, setLive] = useState<LiveRoom | null>(null);
+  const [mySkin, setMySkin] = useState("");
+
   const authed = hydrated && status === "authed" && !!token && !!user;
   // online sem sala: as salas ficam no lobby
   const needsRoom = mode === "online" && !room;
-  // endereço do jogo: GAME_URL da API (ou NEXT_PUBLIC_GAME_URL)
-  const gameBase = useGameUrl();
-  const GAME_ORIGIN = gameBase ? new URL(gameBase).origin : "";
-  const src = `${gameBase}/?${new URLSearchParams({ embed: "1", modo: mode, ...(room ? { sala: room } : {}), v: String(attempt) })}`;
 
   // partida aberta: música pausada e botões flutuantes escondidos até sair daqui
   useEffect(() => {
     setGameActive(true);
-    return () => setGameActive(false);
+    return () => {
+      setGameActive(false);
+      showGame(false);
+      sendToGame({ type: "hot:leave" });
+    };
   }, []);
 
   useEffect(() => {
     if (needsRoom) router.replace("/lobby");
   }, [needsRoom, router]);
 
-  const toGame = useCallback((message: Record<string, unknown>) => {
-    if (GAME_ORIGIN) frameRef.current?.contentWindow?.postMessage(message, GAME_ORIGIN);
-  }, [GAME_ORIGIN]);
-
+  // mensagens do jogo durante esta partida
   useEffect(() => {
-    if (!authed || needsRoom || !GAME_ORIGIN) return;
-    const onMessage = (event: MessageEvent) => {
-      const frame = frameRef.current?.contentWindow;
-      if (event.origin !== GAME_ORIGIN || !frame || event.source !== frame) return;
-      if (event.data?.type === "hot:ready") {
-        frame.postMessage(
-          {
-            type: "hot:auth",
-            token,
-            nickname: user!.nickname,
-            inviteBase: `${location.origin}/jogar?modo=online&sala=`,
-            skin: savedSkin(),
-          },
-          GAME_ORIGIN,
-        );
-        setState("ready");
-      } else if (event.data?.type === "hot:exit") {
+    return onGameMessage((data) => {
+      if (data.type === "hot:exit") {
         router.push("/lobby");
-      } else if (event.data?.type === "hot:room") {
-        const data = event.data as LiveRoom & { skins?: Skin[] };
-        if (!Array.isArray(data.players)) return;
-        setLive({ code: data.code, isHost: !!data.isHost, started: !!data.started, players: data.players });
-        if (Array.isArray(data.skins)) setSkins(data.skins);
-        const me = data.players.find((p) => p.you);
+      } else if (data.type === "hot:room") {
+        const players = Array.isArray(data.players) ? (data.players as LiveRoom["players"]) : [];
+        setLive({ code: String(data.code), isHost: !!data.isHost, started: !!data.started, players });
+        if (Array.isArray(data.skins)) updateGame({ skins: data.skins as Skin[] });
+        const me = players.find((p) => p.you);
         if (me) setMySkin(me.skin);
-      } else if (event.data?.type === "hot:started") {
-        setStarted(true);
-        frameRef.current?.focus();
-      } else if (event.data?.type === "hot:error") {
-        setGameError(typeof event.data.message === "string" ? event.data.message : "A conexão com a sala caiu.");
+        setStage((s) => (s.kind === "joining" ? { kind: "waiting" } : s));
+      } else if (data.type === "hot:started") {
+        setStage({ kind: "playing" });
+        showGame(true);
+      } else if (data.type === "hot:error") {
+        showGame(false);
+        setStage((s) => ({
+          kind: "error",
+          title: s.kind === "playing" ? "A partida caiu" : "Não deu para entrar",
+          message: typeof data.message === "string" ? data.message : "A conexão com a sala caiu.",
+        }));
       }
-    };
-    window.addEventListener("message", onMessage);
-    const timer = setTimeout(() => setState((s) => (s === "loading" ? "failed" : s)), LOAD_TIMEOUT);
+    });
+  }, [router]);
+
+  const join = useCallback(
+    (skin?: string) => {
+      setStage({ kind: "joining" });
+      sendToGame({ type: "hot:play", mode: "online", room, skin: skin ?? savedSkin() });
+    },
+    [room],
+  );
+
+  // jogo pronto: abre o treino, ou confere a sala antes de entrar
+  useEffect(() => {
+    if (!authed || needsRoom || game.phase !== "ready" || stage.kind !== "checking") return;
+    let cancelled = false;
+    if (mode === "bots") {
+      sendToGame({ type: "hot:play", mode: "bots" });
+      showGame(true);
+      Promise.resolve().then(() => !cancelled && setStage({ kind: "playing" }));
+      return () => {
+        cancelled = true;
+      };
+    }
+    getRoom(token, room)
+      .then((meta) => {
+        if (cancelled) return;
+        // partida rolando: escolhe o personagem antes de cair no jogo
+        if (meta.started) setStage({ kind: "inProgress", meta });
+        else join();
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setStage({
+          kind: "error",
+          title: "Não deu para entrar",
+          message:
+            err instanceof AuthError && err.status === 404
+              ? "Esta sala não existe mais."
+              : err instanceof AuthError
+                ? err.message
+                : "Não foi possível abrir a sala.",
+        });
+      });
     return () => {
-      window.removeEventListener("message", onMessage);
-      clearTimeout(timer);
+      cancelled = true;
     };
-  }, [authed, token, user, router, attempt, needsRoom, GAME_ORIGIN]);
+  }, [authed, needsRoom, game.phase, stage.kind, mode, room, token, join]);
 
+  const chooseSkin = useCallback((skin: string) => {
+    setMySkin(skin);
+    storeSkin(skin);
+    sendToGame({ type: "hot:skin", skin });
+  }, []);
   const leave = useCallback(() => {
-    toGame({ type: "hot:leave" });
+    sendToGame({ type: "hot:leave" });
     router.push("/lobby");
-  }, [toGame, router]);
-  const gone = useCallback((message: string) => setGameError(message), []);
+  }, [router]);
+  const gone = useCallback((message: string) => {
+    sendToGame({ type: "hot:leave" });
+    setStage({ kind: "error", title: "Não deu para entrar", message });
+  }, []);
 
-  if (!hydrated || status === "loading" || needsRoom || (authed && !gameBase)) return <div className={styles.screen} aria-busy="true" />;
+  if (!hydrated || status === "loading" || needsRoom) return <div className={styles.screen} aria-busy="true" />;
 
   if (!authed) {
     return (
@@ -134,67 +178,11 @@ export default function GameFrame() {
     );
   }
 
+  const pct = game.total ? Math.round((game.done / game.total) * 100) : 0;
+
   return (
     <div className={styles.screen}>
-      <iframe
-        key={attempt}
-        ref={frameRef}
-        src={src}
-        title={mode === "bots" ? "Hell on Tap: treino com bots" : "Hell on Tap: mata-mata online"}
-        className={styles.frame}
-        allow="fullscreen; autoplay; clipboard-write; gamepad"
-        allowFullScreen
-        onLoad={() => frameRef.current?.focus()}
-      />
-
-      {/* sala de espera do site, até a partida começar */}
-      {mode === "online" && state === "ready" && !started && !gameError && live && (
-        <WaitingRoom
-          token={token!}
-          code={room}
-          live={live}
-          skins={skins}
-          mySkin={mySkin}
-          onSkin={(skin) => {
-            setMySkin(skin);
-            storeSkin(skin);
-            toGame({ type: "hot:skin", skin });
-          }}
-          onStart={() => toGame({ type: "hot:start" })}
-          onLeave={leave}
-          onGone={gone}
-        />
-      )}
-
-      {mode === "online" && state === "ready" && !live && !gameError && (
-        <div className={styles.overlay} role="status">
-          <span className={styles.spinner} aria-hidden="true" />
-          <p>Entrando na sala {room}…</p>
-        </div>
-      )}
-
-      {gameError && (
-        <div className={styles.overlay} role="alert">
-          <div className={styles.card}>
-            <h1>{started ? "A partida caiu" : "Não deu para entrar"}</h1>
-            <p>{gameError}</p>
-            <div className={styles.actions}>
-              <Link href="/lobby" className={styles.primary}>
-                Ver salas no lobby
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {state === "loading" && (
-        <div className={styles.overlay} role="status">
-          <span className={styles.spinner} aria-hidden="true" />
-          <p>{mode === "bots" ? "Abrindo o treino…" : room ? `Entrando na sala ${room}…` : "Abrindo o mata-mata…"}</p>
-        </div>
-      )}
-
-      {state === "failed" && (
+      {game.phase === "failed" ? (
         <div className={styles.overlay} role="alert">
           <div className={styles.card}>
             <h1>O jogo não abriu</h1>
@@ -204,8 +192,8 @@ export default function GameFrame() {
                 type="button"
                 className={styles.primary}
                 onClick={() => {
-                  setState("loading");
-                  setAttempt((n) => n + 1);
+                  updateGame({ phase: "loading", done: 0, total: 0 });
+                  reloadGame();
                 }}
               >
                 Tentar de novo
@@ -216,7 +204,98 @@ export default function GameFrame() {
             </div>
           </div>
         </div>
-      )}
+      ) : game.phase !== "ready" ? (
+        <div className={styles.overlay} role="status">
+          <span className={styles.spinner} aria-hidden="true" />
+          <p>Preparando o jogo{game.total ? ` · ${pct}%` : "…"}</p>
+        </div>
+      ) : stage.kind === "error" ? (
+        <div className={styles.overlay} role="alert">
+          <div className={styles.card}>
+            <h1>{stage.title}</h1>
+            <p>{stage.message}</p>
+            <div className={styles.actions}>
+              <Link href="/lobby" className={styles.primary}>
+                Ver salas no lobby
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : stage.kind === "waiting" && live ? (
+        <WaitingRoom
+          token={token!}
+          code={room}
+          live={live}
+          skins={game.skins}
+          mySkin={mySkin}
+          onSkin={chooseSkin}
+          onStart={() => sendToGame({ type: "hot:start" })}
+          onLeave={leave}
+          onGone={gone}
+        />
+      ) : stage.kind === "inProgress" ? (
+        <InProgress meta={stage.meta} onEnter={join} onLeave={() => router.push("/lobby")} />
+      ) : stage.kind !== "playing" ? (
+        <div className={styles.overlay} role="status">
+          <span className={styles.spinner} aria-hidden="true" />
+          <p>{mode === "bots" ? "Abrindo o treino…" : `Entrando na sala ${room}…`}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Partida já começou: escolhe o personagem e entra (nada de cair direto no jogo). */
+function InProgress({ meta, onEnter, onLeave }: { meta: GameRoom; onEnter: (skin: string) => void; onLeave: () => void }) {
+  const game = useGameState();
+  const [skin, setSkin] = useState(() => savedSkin() ?? game.skins[0]?.id ?? "");
+  const full = meta.players >= meta.maxPlayers;
+  return (
+    <div className={rooms.waiting} role="region" aria-label="Entrar na partida">
+      <div className={rooms.waitingShell}>
+        <header className={rooms.waitingHead}>
+          <div className={rooms.waitingTitle}>
+            <span className={rooms.eyebrow}>MATA-MATA ONLINE · PARTIDA EM ANDAMENTO</span>
+            <h1>{meta.name}</h1>
+            <div className={rooms.waitingTags}>
+              <PrivacyBadge privacy={meta.privacy} />
+              <span>
+                {meta.players}/{meta.maxPlayers} jogadores · Dono: {meta.owner}
+              </span>
+            </div>
+          </div>
+        </header>
+        <SkinPicker
+          skins={game.skins}
+          value={skin}
+          onChange={(id) => {
+            setSkin(id);
+            storeSkin(id);
+          }}
+        />
+        <div className={rooms.startBar}>
+          <button type="button" className={rooms.ghost} onClick={onLeave}>
+            Voltar ao lobby
+          </button>
+          <p>
+            {full ? (
+              "A sala está cheia agora. Tente de novo daqui a pouco."
+            ) : (
+              <>
+                <strong>A partida já começou.</strong> Escolha seu personagem e entre: você nasce num ponto livre do mapa.
+              </>
+            )}
+          </p>
+          <button
+            type="button"
+            className={`${rooms.primary} ${rooms.startButton}`}
+            disabled={full}
+            onClick={() => onEnter(skin)}
+          >
+            Entrar na partida
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

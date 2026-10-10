@@ -3,6 +3,7 @@ import type { ProfileClan } from "@/lib/clan-api";
 import { imageUrl, normalizeLayout, type Profile, type ProfileSectionId } from "@/lib/profile-api";
 import ProfileActions from "./ProfileActions";
 import ProfileSections from "./ProfileSections";
+import ProfileStats from "./ProfileStats";
 import styles from "./Profile.module.css";
 
 const memberSince = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" });
@@ -56,13 +57,13 @@ export default function ProfileView({ profile, clans = [] }: { profile: Profile;
       <ProfileSections
         profileId={profile.id}
         layout={layout}
-        sections={Object.fromEntries(layout.filter((s) => s.visible).map((s) => [s.id, SECTIONS[s.id]({ clans })]))}
+        sections={Object.fromEntries(layout.filter((s) => s.visible).map((s) => [s.id, SECTIONS[s.id]({ clans, nickname: profile.nickname })]))}
       />
     </main>
   );
 }
 
-const SECTIONS: Record<ProfileSectionId, (data: { clans: ProfileClan[] }) => React.ReactNode> = {
+const SECTIONS: Record<ProfileSectionId, (data: { clans: ProfileClan[]; nickname: string }) => React.ReactNode> = {
   clans: ({ clans }) => (
     <section key="clans" className={styles.stats} aria-labelledby="clans-title">
       <h2 id="clans-title">Clãs</h2>
@@ -77,18 +78,10 @@ const SECTIONS: Record<ProfileSectionId, (data: { clans: ProfileClan[] }) => Rea
       )}
     </section>
   ),
-  stats: () => (
+  stats: ({ nickname }) => (
     <section key="stats" className={styles.stats} aria-labelledby="stats-title">
       <h2 id="stats-title">Estatísticas</h2>
-      <dl className={styles.statGrid}>
-        {["Partidas", "Frags", "Mortes", "Headshots"].map((label) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>—</dd>
-          </div>
-        ))}
-      </dl>
-      <p className={styles.statsNote}>Os números aparecem quando as partidas começarem a ser registradas.</p>
+      <ProfileStats nickname={nickname} />
     </section>
   ),
 };

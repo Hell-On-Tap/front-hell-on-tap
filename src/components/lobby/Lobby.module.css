@@ -965,6 +965,14 @@ summary.blockTitle {
   color: var(--hud);
 }
 
+.board td a {
+  color: var(--bone);
+}
+
+.board td a:hover {
+  color: var(--hud);
+}
+
 .boardMe td {
   background: rgba(255, 180, 58, 0.1);
 }
