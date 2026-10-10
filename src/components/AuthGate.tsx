@@ -1,6 +1,5 @@
 "use client";
 
-import { GAME_URL } from "@/lib/home-data";
 import { useSession } from "@/lib/session";
 
 /** Mostra só para quem NÃO está logado (some enquanto a sessão é conferida). */
@@ -18,11 +17,11 @@ export function Nickname() {
   return <>{useSession().user?.nickname}</>;
 }
 
-/** "Jogar": logado vai para o jogo; sem conta abre o login. */
+/** "Jogar": logado vai para o lobby (escolha do modo); sem conta abre o login. */
 export function PlayLink({ className, children }: { className?: string; children: React.ReactNode }) {
   const { status } = useSession();
   return (
-    <a href={status === "authed" ? GAME_URL : "#entrar"} className={className}>
+    <a href={status === "authed" ? "/lobby" : "#entrar"} className={className}>
       {children}
     </a>
   );

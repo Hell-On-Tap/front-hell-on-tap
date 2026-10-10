@@ -162,7 +162,7 @@ export default function Lobby() {
           </nav>
 
           <section id="lobby-panel" className={styles.panel} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={-1}>
-            {tab === "jogar" && <PlayPanel />}
+            {tab === "jogar" && <PlayPanel token={token} nickname={user.nickname} />}
             {tab === "inventario" && <InventoryPanel />}
             {tab === "amigos" && <FriendsPanel token={token} friends={friends} />}
             {tab === "clas" && <ClansPanel token={token} />}

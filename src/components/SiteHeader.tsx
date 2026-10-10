@@ -8,6 +8,7 @@ import { imageUrl } from "@/lib/profile-api";
 import { useSession } from "@/lib/session";
 import { myInvites } from "@/lib/clan-api";
 import { FRIENDS_CHANGED, myFriends } from "@/lib/friends-api";
+import GameInviteToast from "./game/GameInviteToast";
 import styles from "./SiteHeader.module.css";
 
 // ---- tela cheia: estado vem do próprio navegador ----
@@ -102,6 +103,7 @@ export default function SiteHeader() {
     }, []);
 
     return (
+        <>
         <header className={styles.header} data-scrolled={scrolled}>
             <Link href="/" className={styles.logo} aria-label="Hell on Tap, início">
                 <Image src="/logo-pixel.png" alt="" width={1254} height={1254} className={styles.mark} priority />
@@ -205,5 +207,8 @@ export default function SiteHeader() {
                 )}
             </nav>
         </header>
+        {/* convite para jogar (sala online de um amigo) */}
+        {status === "authed" && token && <GameInviteToast token={token} />}
+        </>
     );
 }

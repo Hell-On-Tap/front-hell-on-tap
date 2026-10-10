@@ -1,0 +1,926 @@
+/* Salas online: lista, criar/configurar, sala de espera e aviso de convite */
+
+/* ---------- botões ---------- */
+.primary,
+.ghost,
+.small,
+.smallGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.primary {
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: var(--blood-deep);
+  background: var(--hud);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.primary:hover:not(:disabled) {
+  background: #ffc766;
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+.ghost {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--bone);
+  border: 2px solid var(--bone-dim);
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(242, 227, 207, 0.08);
+}
+
+.small,
+.smallGhost {
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.small {
+  color: var(--blood-deep);
+  background: var(--hud);
+}
+
+.small:hover:not(:disabled) {
+  background: #ffc766;
+}
+
+.smallGhost {
+  color: var(--bone-dim);
+  border: 1px solid rgba(242, 227, 207, 0.25);
+}
+
+.smallGhost:hover:not(:disabled) {
+  color: var(--bone);
+  border-color: var(--bone-dim);
+}
+
+.primary:disabled,
+.ghost:disabled,
+.small:disabled,
+.smallGhost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primary svg,
+.ghost svg,
+.small svg,
+.smallGhost svg {
+  width: 0.9em;
+  height: 0.9em;
+  fill: currentColor;
+  flex: none;
+}
+
+.input {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0 0.75rem;
+  font: inherit;
+  color: var(--bone);
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 180, 58, 0.3);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--hud);
+}
+
+.msgError {
+  color: #ff8a6a;
+  font-size: 0.88rem;
+}
+
+.msgOk {
+  color: #8dff97;
+  font-size: 0.88rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- selo de privacidade ---------- */
+.privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.12rem 0.45rem;
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bone);
+  background: rgba(242, 227, 207, 0.12);
+}
+
+.privacy svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  fill: currentColor;
+}
+
+.privacy[data-privacy="public"] {
+  color: var(--blood-deep);
+  background: #6dff7a;
+}
+
+.privacy[data-privacy="friends"] {
+  color: var(--blood-deep);
+  background: var(--hud);
+}
+
+/* ---------- lista de salas (lobby) ---------- */
+.browser {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  background: rgba(10, 0, 0, 0.55);
+  border: 1px solid rgba(255, 180, 58, 0.22);
+}
+
+.browserHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.browserHead h4 {
+  margin-right: auto;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--hud);
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--bone-dim);
+}
+
+.live::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  background: #6dff7a;
+  box-shadow: 0 0 6px #6dff7a;
+  animation: blink 1.6s steps(2, end) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.codeForm {
+  display: flex;
+  flex: 1 1 15rem;
+  gap: 0.4rem;
+}
+
+.codeForm .input {
+  max-width: 11rem;
+  font-family: var(--font-pixel);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.filters {
+  display: flex;
+  gap: 0;
+  margin-top: 0.8rem;
+}
+
+.filters button {
+  min-height: 2rem;
+  padding: 0 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+  border: 1px solid rgba(242, 227, 207, 0.2);
+}
+
+.filters button + button {
+  border-left: 0;
+}
+
+.filters button[aria-pressed="true"] {
+  color: var(--blood-deep);
+  background: var(--bone);
+  border-color: var(--bone);
+}
+
+.rooms {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.room {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(36, 3, 3, 0.85);
+  border-left: 3px solid rgba(255, 180, 58, 0.35);
+}
+
+.room[data-mine="true"] {
+  border-left-color: var(--hud);
+  background: linear-gradient(90deg, rgba(255, 180, 58, 0.12), rgba(36, 3, 3, 0.85) 40%);
+}
+
+.room[data-full="true"] {
+  opacity: 0.7;
+}
+
+.roomMain {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.roomTitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.roomName {
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  color: var(--bone);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roomMeta {
+  overflow: hidden;
+  font-size: 0.8rem;
+  color: var(--bone-dim);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mineTag {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--hud);
+}
+
+.slots {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  color: var(--bone);
+}
+
+.slotBar {
+  display: flex;
+  gap: 2px;
+}
+
+.slotBar i {
+  width: 6px;
+  height: 10px;
+  background: rgba(242, 227, 207, 0.15);
+}
+
+.slotBar i[data-on="true"] {
+  background: var(--hud);
+}
+
+.state {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: #8dff97;
+}
+
+.state[data-started="true"] {
+  color: var(--ember);
+}
+
+.empty {
+  padding: 1.2rem 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.invites {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.invite {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  padding: 0.6rem 0.75rem;
+  background: linear-gradient(90deg, rgba(200, 23, 14, 0.4), rgba(36, 3, 3, 0.85));
+  border-left: 3px solid var(--ember);
+}
+
+.invite p {
+  flex: 1 1 14rem;
+  font-size: 0.92rem;
+  color: var(--bone);
+}
+
+.invite strong {
+  color: var(--hud);
+}
+
+.inviteActions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+@media (max-width: 560px) {
+  .room {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .room > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- campos de configuração da sala ---------- */
+.fields {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--hud);
+}
+
+.privacyOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.privacyOption {
+  position: relative;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.65rem 0.7rem;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(242, 227, 207, 0.15);
+  cursor: pointer;
+}
+
+.privacyOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.privacyOption:has(input:checked) {
+  border-color: var(--hud);
+  background: rgba(255, 180, 58, 0.1);
+}
+
+.privacyOption:has(input:focus-visible) {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+}
+
+.privacyOption strong {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--bone);
+}
+
+.privacyOption strong svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: var(--hud);
+}
+
+.privacyOption span {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--bone-dim);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepper button {
+  width: 2.4rem;
+  height: 2.4rem;
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  color: var(--bone);
+  border: 2px solid rgba(242, 227, 207, 0.3);
+}
+
+.stepper button:hover:not(:disabled) {
+  border-color: var(--hud);
+  color: var(--hud);
+}
+
+.stepper button:disabled {
+  opacity: 0.4;
+}
+
+.stepper output {
+  min-width: 3.5rem;
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  text-align: center;
+  color: var(--hud);
+}
+
+.stepper small {
+  font-size: 0.8rem;
+  color: var(--bone-dim);
+}
+
+@media (max-width: 560px) {
+  .privacyOptions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- diálogo "Criar sala" ---------- */
+.dialog {
+  margin: auto;
+  padding: 0;
+  width: 560px;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  color: var(--bone);
+  background: transparent;
+  border: 0;
+}
+
+.dialog::backdrop {
+  background:
+    radial-gradient(ellipse at center, rgba(60, 4, 4, 0.55), rgba(10, 0, 0, 0.88)),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px);
+  backdrop-filter: blur(3px);
+}
+
+.dialogPanel {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(142, 11, 11, 0.35), transparent 30%),
+    #1c0202;
+  border: 2px solid var(--hud);
+  box-shadow: 0 0 0 4px #1c0202;
+}
+
+.dialogHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.dialogHead h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--hud);
+  text-transform: uppercase;
+}
+
+.dialogHead p {
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+  color: var(--bone-dim);
+}
+
+.close {
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: none;
+  font-size: 1.3rem;
+  color: var(--bone-dim);
+  border: 1px solid rgba(242, 227, 207, 0.25);
+}
+
+.close:hover {
+  color: var(--bone);
+  border-color: var(--bone);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+/* ---------- sala de espera (por cima do jogo) ---------- */
+.waiting {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow-y: auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  background:
+    radial-gradient(ellipse at top, rgba(142, 11, 11, 0.45), transparent 60%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    #0b0000;
+}
+
+.waitingShell {
+  display: grid;
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.waitingHead {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 180, 58, 0.25);
+}
+
+.waitingTitle {
+  display: grid;
+  gap: 0.4rem;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--hud-dim);
+}
+
+.waitingTitle h1 {
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 0.95;
+  color: var(--bone);
+  text-transform: uppercase;
+}
+
+.waitingTags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--bone-dim);
+}
+
+.code {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.15em;
+  color: var(--hud);
+}
+
+.waitingHeadActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.waitingGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.card {
+  padding: 1rem;
+  background: rgba(28, 2, 2, 0.9);
+  border: 1px solid rgba(255, 180, 58, 0.22);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.cardHead h2 {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--hud);
+}
+
+.cardHead span {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  color: var(--bone);
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.player,
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 4.2rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.player {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(242, 227, 207, 0.12);
+}
+
+.player[data-you="true"] {
+  border-color: var(--hud);
+}
+
+.slot {
+  justify-content: center;
+  font-size: 0.78rem;
+  color: rgba(242, 227, 207, 0.35);
+  border: 1px dashed rgba(242, 227, 207, 0.15);
+}
+
+.sprite {
+  width: 40px;
+  height: 50px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.playerText {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.playerName {
+  overflow: hidden;
+  font-weight: 700;
+  color: var(--bone);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerTags {
+  font-family: var(--font-pixel);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--hud);
+}
+
+.skins {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 0.45rem;
+}
+
+.skin {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.3rem 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--bone-dim);
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(242, 227, 207, 0.12);
+}
+
+.skin:hover:not(:disabled) {
+  border-color: var(--hud-dim);
+  color: var(--bone);
+}
+
+.skin[aria-pressed="true"] {
+  color: var(--bone);
+  border-color: var(--hud);
+  background: rgba(255, 180, 58, 0.12);
+}
+
+.skin .sprite {
+  width: 48px;
+  height: 60px;
+}
+
+.friendRows {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.friendRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.friendRow > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friendRow small {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--bone-dim);
+}
+
+.friendRow small[data-online="true"] {
+  color: #8dff97;
+}
+
+.sideStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.startBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  background: rgba(20, 1, 1, 0.97);
+  border: 2px solid var(--hud);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.startBar p {
+  flex: 1 1 16rem;
+  font-size: 0.92rem;
+  color: var(--bone-dim);
+}
+
+.startBar strong {
+  color: var(--bone);
+}
+
+.startButton {
+  min-height: 3.2rem;
+  padding: 0 2rem;
+  font-size: 1.6rem;
+}
+
+.settingsCard {
+  border-color: var(--hud);
+}
+
+@media (max-width: 860px) {
+  .waitingGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- aviso de convite (canto da tela) ---------- */
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 70;
+  display: grid;
+  gap: 0.6rem;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 0.9rem 1rem;
+  background: #1c0202;
+  border: 2px solid var(--ember);
+  box-shadow:
+    0 0 0 4px #1c0202,
+    0 12px 40px rgba(0, 0, 0, 0.6);
+  animation: toastIn 240ms steps(4, end) both;
+}
+
+.toast p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--bone);
+}
+
+.toast strong {
+  color: var(--hud);
+}
+
+.toast small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--bone-dim);
+}
+
+.toastLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--ember);
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .live::before {
+    animation: none;
+  }
+}

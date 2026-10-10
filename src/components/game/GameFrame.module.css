@@ -1,0 +1,120 @@
+/* jogo em tela cheia, por cima de tudo do site */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at center, rgba(60, 4, 4, 0.6), #070000 75%),
+    #070000;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--bone);
+  background: rgba(7, 0, 0, 0.92);
+}
+
+.overlay p {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  color: var(--hud);
+}
+
+.spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 4px solid rgba(255, 180, 58, 0.25);
+  border-top-color: var(--hud);
+  animation: spin 800ms steps(8, end) infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card {
+  max-width: 30rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(28, 2, 2, 0.95);
+  border: 2px solid var(--hud);
+  box-shadow: 0 0 0 4px #1c0202;
+}
+
+.card h1 {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--hud);
+}
+
+.card p {
+  margin: 0.9rem 0 1.5rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--bone-dim);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.primary,
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.primary {
+  background: var(--hud);
+  color: var(--blood-deep);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.primary:hover {
+  background: #ffc766;
+}
+
+.ghost {
+  color: var(--bone);
+  border: 2px solid var(--bone-dim);
+}
+
+.ghost:hover {
+  background: rgba(242, 227, 207, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+}

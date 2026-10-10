@@ -63,3 +63,27 @@ export function usePlayerMode() {
 export function usePlayerPlaying() {
   return useSyncExternalStore(subscribe, () => playing, () => false);
 }
+
+/**
+ * Partida aberta (/jogar): o som é do jogo, então o player some e pausa e os
+ * botões flutuantes saem da frente. A página do jogo liga e desliga isto.
+ */
+let gameActive = false;
+const gameListeners = new Set<() => void>();
+
+export function setGameActive(value: boolean) {
+  if (gameActive === value) return;
+  gameActive = value;
+  gameListeners.forEach((l) => l());
+}
+
+export function useGameActive() {
+  return useSyncExternalStore(
+    (listener) => {
+      gameListeners.add(listener);
+      return () => gameListeners.delete(listener);
+    },
+    () => gameActive,
+    () => false,
+  );
+}

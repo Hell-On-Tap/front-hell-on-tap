@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useGameActive } from "@/lib/player-store";
 import styles from "./ReportBugButton.module.css";
 
 const SOUND = "/audios/report.mp3";
@@ -12,6 +13,8 @@ const SOUND = "/audios/report.mp3";
 export default function ReportBugButton() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [toast, setToast] = useState(false);
+  // some durante a partida para não ficar por cima do jogo
+  const inGame = useGameActive();
 
   useEffect(() => {
     if (!toast) return;
@@ -30,6 +33,8 @@ export default function ReportBugButton() {
     });
     setToast(true);
   }
+
+  if (inGame) return null;
 
   return (
     <>

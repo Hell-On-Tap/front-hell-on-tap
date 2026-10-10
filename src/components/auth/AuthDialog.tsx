@@ -119,7 +119,8 @@ export default function AuthDialog() {
     // depois do "bem-vindo", leva ao lobby
     setTimeout(() => {
       close();
-      router.push("/lobby");
+      // no convite de uma partida (/jogar), fica ali: a partida abre com a conta
+      if (!window.location.pathname.startsWith("/jogar")) router.push("/lobby");
     }, 1100);
   }
 

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GAME_URL, MODE_GROUPS, type ModeOption } from "@/lib/home-data";
+import Link from "next/link";
+import { MODE_GROUPS, playPath, type ModeOption } from "@/lib/home-data";
 import { PanelHead } from "./PanelHead";
+import RoomBrowser from "@/components/game/RoomBrowser";
+import { CreateRoomButton } from "@/components/game/RoomSettings";
 import styles from "./PlayPanel.module.css";
 
 const OPTIONS = MODE_GROUPS.flatMap((g) => g.options);
@@ -19,8 +22,11 @@ function savedMode(): ModeOption {
   }
 }
 
-/** Aba Jogar: um cabeçalho por modo e quadrados com imagem para escolher. */
-export default function PlayPanel() {
+/**
+ * Aba Jogar: um cabeçalho por modo e quadrados com imagem para escolher.
+ * Online: a lista de salas aparece logo abaixo do modo, e "Criar sala" fica no topo.
+ */
+export default function PlayPanel({ token, nickname }: { token: string; nickname: string }) {
   const [selected, setSelected] = useState<ModeOption>(FIRST);
 
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function PlayPanel() {
 
   return (
     <>
-      <PanelHead title="Jogar" lead="Escolha o modo e entre. Teclas 1, 2 e 3 também selecionam.">
+      <PanelHead title="Jogar" lead="Escolha o modo. No online, entre numa sala aberta ou crie a sua. Teclas 1, 2 e 3 também selecionam.">
         {/* escolhido + jogar, sempre à vista no topo */}
         <div className={styles.launch} aria-live="polite">
           <div className={styles.launchText}>
@@ -63,12 +69,16 @@ export default function PlayPanel() {
               {group.name} · {selected.name}
             </strong>
           </div>
-          <a href={GAME_URL} className={styles.play}>
-            Jogar
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M4 2v12l10-6z" />
-            </svg>
-          </a>
+          {selected.id === "online" ? (
+            <CreateRoomButton token={token} nickname={nickname} className={styles.play} />
+          ) : (
+            <Link href={playPath("bots")} className={styles.play}>
+              Jogar
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4 2v12l10-6z" />
+              </svg>
+            </Link>
+          )}
         </div>
       </PanelHead>
 
@@ -122,6 +132,9 @@ export default function PlayPanel() {
               );
             })}
           </div>
+          {g.options.some((o) => o.id === "online") && selected.id === "online" && (
+            <RoomBrowser token={token} nickname={nickname} />
+          )}
         </section>
       ))}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getPlayerMode, setPlayerMode, setPlayerPlaying, usePlayerMode } from "@/lib/player-store";
+import { getPlayerMode, setPlayerMode, setPlayerPlaying, useGameActive, usePlayerMode } from "@/lib/player-store";
 import type { Track } from "@/lib/playlist";
 import styles from "./MusicPlayer.module.css";
 
@@ -81,6 +81,9 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
   // só grava depois de restaurar, para não apagar o estado salvo ao abrir
   const restored = useRef(false);
   const mode = usePlayerMode();
+  // em /jogar o som é do jogo: o player some e pausa; ao sair, volta se estava tocando
+  const inGame = useGameActive();
+  const inGameRef = useRef(inGame);
   const track = tracks[index];
   const multiple = tracks.length > 1;
 
@@ -105,7 +108,8 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
 
   const play = useCallback(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    // durante a partida (/jogar) a música fica quieta; a vontade de ouvir continua salva
+    if (!audio || inGameRef.current) return;
     intent.current = true;
     audio
       .play()
@@ -170,6 +174,16 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // entrou ou saiu da partida
+  useEffect(() => {
+    if (inGameRef.current === inGame) return;
+    inGameRef.current = inGame;
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (inGame) audio.pause();
+    else if (intent.current && audio.paused) play();
+  }, [inGame, play]);
+
   // faixa atual: guarda para os eventos e grava a troca de música
   useEffect(() => {
     if (!ready) return;
@@ -230,7 +244,7 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
 
   return (
     <>
-      {gate === "full" && mode !== "closed" && (
+      {gate === "full" && mode !== "closed" && !inGame && (
         <button type="button" className={styles.gate} onClick={play} autoFocus>
           <span className={styles.gateKey}>Pressione qualquer tecla</span>
           <span className={styles.gateTrack}>
@@ -244,7 +258,7 @@ export default function MusicPlayer({ tracks }: { tracks: Track[] }) {
         aria-label="Música"
         data-stay-active=""
         data-mode={mode}
-        hidden={mode !== "open"}
+        hidden={mode !== "open" || inGame}
       >
         <button type="button" className={styles.close} onClick={close} aria-label="Fechar player e parar a música" title="Fechar">
           <svg viewBox="0 0 16 16" aria-hidden="true">

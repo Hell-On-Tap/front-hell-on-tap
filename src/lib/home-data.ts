@@ -1,4 +1,8 @@
-export const GAME_URL = process.env.NEXT_PUBLIC_GAME_URL ?? "http://localhost:3000";
+export const GAME_URL = (process.env.NEXT_PUBLIC_GAME_URL ?? "http://localhost:2500").replace(/\/+$/, "");
+
+/** Página da partida no site (o jogo abre ali, em tela cheia). */
+export const playPath = (mode: "online" | "bots", room?: string) =>
+  `/jogar?modo=${mode}${room ? `&sala=${encodeURIComponent(room)}` : ""}`;
 
 /**
  * Conta obrigatória: não existe partida como visitante.
@@ -8,6 +12,8 @@ export const PLAY_HREF = "#entrar";
 
 export type GameMode = {
   key: string;
+  /** modo do jogo que este item abre */
+  play?: "online" | "bots";
   name: string;
   description: string;
   detail: string;
@@ -18,6 +24,7 @@ export type GameMode = {
 export const MODES: GameMode[] = [
   {
     key: "1",
+    play: "online",
     name: "Mata-mata online",
     description: "Crie uma sala, mande o link e jogue com até 10 amigos.",
     detail: "Respawn em 2,5 s, 25 armas liberadas e headshot causando 4× o dano.",
@@ -26,6 +33,7 @@ export const MODES: GameMode[] = [
   },
   {
     key: "2",
+    play: "bots",
     name: "Treino com bots",
     description: "Aqueça a mira contra bots, sem precisar de sala.",
     detail: "Roda no seu navegador e pausa quando você abre o menu.",
