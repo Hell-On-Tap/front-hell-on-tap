@@ -31,6 +31,7 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
   const [nickname, setNickname] = useState(profile.nickname);
   const [displayName, setDisplayName] = useState(profile.displayName ?? "");
   const [bio, setBio] = useState(profile.bio ?? "");
+  const [avatarFrame, setAvatarFrame] = useState(profile.avatarFrame !== false);
   const [images, setImages] = useState<Record<ImageKind, ImageChange>>({ avatar: null, banner: null });
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState("");
@@ -96,10 +97,11 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
     setFormError("");
     if (Object.keys(next).length) return;
 
-    const changes: { nickname?: string; displayName?: string; bio?: string } = {};
+    const changes: { nickname?: string; displayName?: string; bio?: string; avatarFrame?: boolean } = {};
     if (nickname.trim() !== profile.nickname) changes.nickname = nickname.trim();
     if (displayName.trim() !== (profile.displayName ?? "")) changes.displayName = displayName.trim();
     if (bio.trim() !== (profile.bio ?? "")) changes.bio = bio.trim();
+    if (avatarFrame !== (profile.avatarFrame !== false)) changes.avatarFrame = avatarFrame;
 
     setSaving(true);
     let latest: MyProfile | null = null;
@@ -176,7 +178,7 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
           </div>
 
           <div className={styles.avatarRow}>
-            <div className={styles.avatar}>
+            <div className={styles.avatar} data-image={!!avatarSrc} data-frame={avatarFrame}>
               {avatarSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatarSrc} alt="" />
@@ -201,10 +203,21 @@ export default function EditProfileDialog({ profile, onClose }: { profile: Profi
               )}
             </div>
           </div>
+          <div className={styles.frameChoice}>
+            <span id="frame-label">Moldura da foto</span>
+            <div className={styles.frameOptions} role="radiogroup" aria-labelledby="frame-label">
+              <button type="button" role="radio" aria-checked={avatarFrame} onClick={() => setAvatarFrame(true)}>
+                Com borda
+              </button>
+              <button type="button" role="radio" aria-checked={!avatarFrame} onClick={() => setAvatarFrame(false)}>
+                Sem borda
+              </button>
+            </div>
+          </div>
           {(errors.avatar || errors.banner) && <p className={fieldStyles.error}>{errors.avatar ?? errors.banner}</p>}
           <p className={fieldStyles.hint}>
-            Ao escolher uma imagem você ajusta o enquadramento (foto quadrada, banner 3:1) e, se ela tiver fundo
-            transparente, escolhe a cor de fundo.
+            Ao escolher uma imagem você ajusta o enquadramento (foto quadrada, banner 3:1). Se ela tiver fundo
+            transparente, pode manter transparente ou escolher uma cor. Sem borda, a foto fica solta sobre o banner.
           </p>
         </div>
 

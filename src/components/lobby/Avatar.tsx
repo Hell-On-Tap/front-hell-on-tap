@@ -15,7 +15,7 @@ export default function Avatar({
 }) {
   const src = imageUrl(avatarUrl);
   return (
-    <span className={styles.avatar} data-size={size}>
+    <span className={styles.avatar} data-size={size} data-image={!!src}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" loading="lazy" />

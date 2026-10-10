@@ -63,9 +63,10 @@
   place-items: center;
   background: var(--hellfire);
   border: 4px solid var(--hud);
+  /* moldura igual nos quatro lados (uma sombra deslocada parecia uma borda a mais embaixo) */
   box-shadow:
     0 0 0 4px var(--blood),
-    8px 8px 0 rgba(0, 0, 0, 0.45);
+    0 0 28px rgba(0, 0, 0, 0.55);
   overflow: hidden;
 }
 
@@ -73,6 +74,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* com foto: partes transparentes mostram a página, não o quadrado vermelho */
+.avatar[data-image="true"] {
+  background: transparent;
+}
+
+/* sem moldura: a foto fica solta sobre o banner (bom para recortes com fundo transparente) */
+.avatar[data-frame="false"] {
+  border-color: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.avatar[data-frame="false"] img {
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55));
 }
 
 .avatar span {

@@ -1,0 +1,304 @@
+/* ---------- Grupo de modo: cabeçalho + quadrados ---------- */
+.group + .group {
+  margin-top: 1.75rem;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  padding: 0.65rem 0.9rem;
+  background: linear-gradient(90deg, rgba(200, 23, 14, 0.45), rgba(10, 0, 0, 0.2));
+  border-left: 4px solid var(--hud);
+}
+
+.group[data-available="false"] .groupHead {
+  background: linear-gradient(90deg, rgba(242, 227, 207, 0.08), transparent);
+  border-left-color: var(--bone-dim);
+}
+
+.groupHead h3 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--bone);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.status {
+  padding: 0.15rem 0.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--blood-deep);
+  background: #6dff7a;
+}
+
+.status[data-available="false"] {
+  color: var(--bone);
+  background: rgba(242, 227, 207, 0.18);
+}
+
+.groupHead p {
+  flex-basis: 100%;
+  font-size: 0.88rem;
+  color: var(--bone-dim);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 230px));
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+/* ---------- Quadrado de seleção ---------- */
+.option {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  padding: 0;
+  text-align: left;
+  background: var(--blood-deep);
+  border: 3px solid rgba(255, 180, 58, 0.25);
+  box-shadow: 0 0 0 3px var(--blood-deep);
+  transition:
+    border-color 120ms,
+    box-shadow 160ms,
+    transform 120ms;
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  transition:
+    transform 260ms ease,
+    filter 200ms;
+  filter: saturate(0.85) brightness(0.85);
+}
+
+.option[data-available="true"]:hover {
+  border-color: rgba(255, 180, 58, 0.7);
+}
+
+.option[data-available="true"]:hover .art {
+  transform: scale(1.05);
+  filter: none;
+}
+
+.option[aria-checked="true"] {
+  border-color: var(--hud);
+  box-shadow:
+    0 0 0 3px var(--blood-deep),
+    0 0 0 5px rgba(255, 180, 58, 0.35),
+    0 0 28px rgba(255, 180, 58, 0.35);
+}
+
+.option[aria-checked="true"] .art {
+  filter: none;
+}
+
+.option:focus-visible {
+  outline: 3px solid var(--hud);
+  outline-offset: 4px;
+}
+
+.option[data-available="false"] {
+  cursor: not-allowed;
+  border-color: rgba(242, 227, 207, 0.15);
+}
+
+.option[data-available="false"] .art {
+  filter: grayscale(1) brightness(0.55);
+}
+
+.key {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  color: var(--hud);
+  background: rgba(10, 0, 0, 0.8);
+  border: 2px solid rgba(255, 180, 58, 0.6);
+}
+
+.option[aria-checked="true"] .key {
+  color: var(--blood-deep);
+  background: var(--hud);
+  border-color: var(--hud);
+}
+
+.check {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  background: var(--hud);
+  animation: pop 180ms steps(3, end);
+}
+
+.check svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: var(--blood-deep);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+  }
+}
+
+.lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  color: var(--bone);
+  transform: translate(-50%, -60%);
+}
+
+.lock svg {
+  width: 2rem;
+  height: 2rem;
+  fill: var(--bone-dim);
+}
+
+.caption {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.2rem;
+  padding: 2.5rem 0.85rem 0.8rem;
+  background: linear-gradient(to bottom, transparent, rgba(10, 0, 0, 0.92) 45%);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--bone);
+}
+
+.option[aria-checked="true"] .name {
+  color: var(--hud);
+}
+
+.desc {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--bone-dim);
+}
+
+/* ---------- Selecionado + Jogar ---------- */
+.launch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  padding: 0.6rem 0.6rem 0.6rem 1rem;
+  background: rgba(10, 0, 0, 0.6);
+  border: 1px solid rgba(255, 180, 58, 0.3);
+}
+
+.launchText {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.launchLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--hud-dim);
+}
+
+.launchText strong {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--bone);
+}
+
+.play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0 1.6rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--blood-deep);
+  background: var(--hud);
+  box-shadow: 0 4px 0 #9a5a00;
+}
+
+.play svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.play:hover {
+  background: #ffc766;
+}
+
+.play:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #9a5a00;
+}
+
+@media (max-width: 640px) {
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .name {
+    font-size: 1.2rem;
+  }
+
+  .desc {
+    display: none;
+  }
+
+  .groupHead h3 {
+    font-size: 1.4rem;
+  }
+
+  .play {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art,
+  .check {
+    transition: none;
+    animation: none;
+  }
+}

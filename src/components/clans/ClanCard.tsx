@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { backgroundCss } from "@/lib/image-crop";
 import { imageUrl } from "@/lib/profile-api";
 import { JOIN_POLICY_LABELS, type ClanSummary } from "@/lib/clan-api";
 import styles from "./Clans.module.css";
@@ -6,9 +7,15 @@ import styles from "./Clans.module.css";
 /** Cartão de clã usado na busca, em "Meus clãs" e no perfil. */
 export default function ClanCard({ clan, role }: { clan: ClanSummary; role?: { name: string; color: string } }) {
   const logo = imageUrl(clan.logoUrl);
+  const bg = backgroundCss(clan.background);
   return (
-    <Link href={`/clan/${encodeURIComponent(clan.tag)}`} className={styles.card}>
-      <span className={styles.cardLogo}>
+    <Link
+      href={`/clan/${encodeURIComponent(clan.tag)}`}
+      className={styles.card}
+      data-bg={!!bg || undefined}
+      style={bg ? ({ "--clan-bg": bg } as React.CSSProperties) : undefined}
+    >
+      <span className={styles.cardLogo} data-image={!!logo} data-frame={clan.logoFrame !== false}>
         {logo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logo} alt="" />

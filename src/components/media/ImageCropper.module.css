@@ -264,6 +264,117 @@
   cursor: inherit;
 }
 
+/* ---------- Gradiente personalizado ---------- */
+.gradEditor {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  background: rgba(10, 0, 0, 0.5);
+  border: 1px dashed rgba(255, 180, 58, 0.4);
+  animation: gradIn 160ms steps(3, end);
+}
+
+@keyframes gradIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.gradBar {
+  height: 1.5rem;
+  border: 2px solid rgba(242, 227, 207, 0.25);
+}
+
+.gradRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.gradColor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+}
+
+.gradColor input {
+  width: 2.6rem;
+  height: 2rem;
+  padding: 0;
+  border: 2px solid rgba(242, 227, 207, 0.3);
+  background: none;
+  cursor: var(--cursor-crosshair-open);
+}
+
+.gradColor input:focus-visible {
+  outline: 2px solid var(--hud);
+  outline-offset: 2px;
+}
+
+.gradAngle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+}
+
+.gradAngle input {
+  flex: 1;
+  min-width: 8rem;
+  accent-color: var(--hud);
+}
+
+.gradAngle output {
+  min-width: 2.75rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--hud);
+}
+
+.gradPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.gradDir {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--bone);
+  border: 1px solid rgba(242, 227, 207, 0.25);
+}
+
+.gradDir:hover {
+  border-color: var(--hud);
+}
+
+.gradDir[aria-pressed="true"] {
+  color: var(--blood-deep);
+  background: var(--hud);
+  border-color: var(--hud);
+}
+
+.gradPresets .chip {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradEditor {
+    animation: none;
+  }
+}
+
 .footer {
   display: flex;
   justify-content: flex-end;

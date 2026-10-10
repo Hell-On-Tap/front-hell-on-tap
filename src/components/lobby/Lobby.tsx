@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import ModeMenu from "@/components/ModeMenu";
 import { useSession } from "@/lib/session";
 import { useHydrated } from "@/lib/use-hydrated";
 import Avatar from "./Avatar";
-import { PanelHead } from "./PanelHead";
 import ClansPanel from "./ClansPanel";
 import FriendsPanel from "./FriendsPanel";
 import InventoryPanel from "./InventoryPanel";
+import PlayPanel from "./PlayPanel";
 import PlayersPanel from "./PlayersPanel";
 import ScoreboardPanel from "./ScoreboardPanel";
 import { useFriends } from "./use-friends";
@@ -163,12 +162,7 @@ export default function Lobby() {
           </nav>
 
           <section id="lobby-panel" className={styles.panel} role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={-1}>
-            {tab === "jogar" && (
-              <>
-                <PanelHead title="Jogar" lead="Escolha o modo. Use as teclas 1, 2 e 3, como no menu de compra." />
-                <ModeMenu />
-              </>
-            )}
+            {tab === "jogar" && <PlayPanel />}
             {tab === "inventario" && <InventoryPanel />}
             {tab === "amigos" && <FriendsPanel token={token} friends={friends} />}
             {tab === "clas" && <ClansPanel token={token} />}

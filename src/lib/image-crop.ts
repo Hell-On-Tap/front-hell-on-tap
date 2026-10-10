@@ -12,7 +12,10 @@ export type Crop = {
   /** canto superior esquerdo da imagem dentro do quadro */
   x: number;
   y: number;
-  /** null = mantém transparente; senão o id de um fundo de BACKGROUNDS ou uma cor #rrggbb */
+  /**
+   * null = mantém transparente; senão o id de um fundo de BACKGROUNDS, uma cor #rrggbb
+   * ou um gradiente personalizado "grad:<ângulo>:<#de>:<#para>" (ver gradientId).
+   */
   background: string | null;
 };
 
@@ -47,11 +50,74 @@ export const BACKGROUNDS: { id: string; label: string; css: string; paint: Paint
   { id: "#ffffff", label: "Branco", css: "#ffffff", paint: solid("#ffffff") },
 ];
 
+/** Gradiente montado pela pessoa: ângulo como no CSS (0° = para cima, 90° = para a direita). */
+export type CustomGradient = { angle: number; from: string; to: string };
+
+const GRADIENT = /^grad:(\d{1,3}):(#[0-9a-f]{6}):(#[0-9a-f]{6})$/i;
+const HEX = /^#[0-9a-f]{6}$/i;
+
+export function parseGradient(background: string | null): CustomGradient | null {
+  const m = background ? GRADIENT.exec(background) : null;
+  return m ? { angle: Number(m[1]) % 360, from: m[2].toLowerCase(), to: m[3].toLowerCase() } : null;
+}
+
+export function gradientId(g: CustomGradient) {
+  return `grad:${Math.round(((g.angle % 360) + 360) % 360)}:${g.from.toLowerCase()}:${g.to.toLowerCase()}`;
+}
+
+/** Mesmo desenho do linear-gradient(<ângulo>deg, de, para) do CSS: a prévia e a imagem final batem. */
+const angled =
+  ({ angle, from, to }: CustomGradient): Paint =>
+  (ctx, w, h) => {
+    const rad = (angle * Math.PI) / 180;
+    const dx = Math.sin(rad);
+    const dy = -Math.cos(rad);
+    const half = (Math.abs(w * dx) + Math.abs(h * dy)) / 2;
+    const g = ctx.createLinearGradient(w / 2 - dx * half, h / 2 - dy * half, w / 2 + dx * half, h / 2 + dy * half);
+    g.addColorStop(0, from);
+    g.addColorStop(1, to);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  };
+
 function paintFor(background: string | null): Paint | null {
   if (!background) return null;
   const preset = BACKGROUNDS.find((b) => b.id === background);
   if (preset) return preset.paint;
-  return /^#[0-9a-f]{6}$/i.test(background) ? solid(background) : null;
+  const grad = parseGradient(background);
+  if (grad) return angled(grad);
+  return HEX.test(background) ? solid(background) : null;
+}
+
+/** CSS do fundo, para as amostras e a prévia (null = transparente). */
+export function backgroundCss(background: string | null): string | null {
+  if (!background) return null;
+  const preset = BACKGROUNDS.find((b) => b.id === background);
+  if (preset) return preset.css;
+  const grad = parseGradient(background);
+  if (grad) return `linear-gradient(${grad.angle}deg, ${grad.from}, ${grad.to})`;
+  return HEX.test(background) ? background : null;
+}
+
+// Gradientes salvos ficam neste navegador, para reusar na foto, no banner e na logo.
+const SAVED_KEY = "hot:gradients";
+const MAX_SAVED = 8;
+
+export function loadSavedGradients(): string[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]");
+    return Array.isArray(list) ? list.filter((g): g is string => typeof g === "string" && !!parseGradient(g)).slice(0, MAX_SAVED) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function storeSavedGradients(list: string[]) {
+  try {
+    localStorage.setItem(SAVED_KEY, JSON.stringify(list.slice(0, MAX_SAVED)));
+  } catch {
+    /* sem armazenamento: os gradientes valem só nesta janela */
+  }
 }
 
 export const MAX_ZOOM = 5;

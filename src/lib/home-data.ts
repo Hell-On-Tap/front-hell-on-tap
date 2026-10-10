@@ -41,6 +41,63 @@ export const MODES: GameMode[] = [
   },
 ];
 
+/**
+ * Modos do lobby, agrupados: cada grupo tem um cabeçalho e quadrados de seleção.
+ * As imagens ficam em public/modes (troque os arquivos para mudar a arte).
+ */
+export type ModeOption = {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  image: string;
+  available: boolean;
+};
+export type ModeGroup = { id: string; name: string; detail: string; available: boolean; options: ModeOption[] };
+
+export const MODE_GROUPS: ModeGroup[] = [
+  {
+    id: "mata-mata",
+    name: "Mata-mata",
+    detail: "Respawn em 2,5 s, 25 armas liberadas e headshot causando 4× o dano.",
+    available: true,
+    options: [
+      {
+        id: "online",
+        key: "1",
+        name: "Online",
+        description: "Crie uma sala, mande o link e jogue com até 10 amigos.",
+        image: "/modes/mata-mata-online.webp",
+        available: true,
+      },
+      {
+        id: "bots",
+        key: "2",
+        name: "Treino com bots",
+        description: "Aqueça a mira contra bots, sem precisar de sala. Pausa quando você abre o menu.",
+        image: "/modes/treino-bots.webp",
+        available: true,
+      },
+    ],
+  },
+  {
+    id: "competitivo",
+    name: "Competitivo 5v5",
+    detail: "Dois times, uma vida por rodada, economia e bomba. Chega depois dos times e das rodadas.",
+    available: false,
+    options: [
+      {
+        id: "5v5",
+        key: "3",
+        name: "Partida 5v5",
+        description: "Em desenvolvimento.",
+        image: "/modes/competitivo.webp",
+        available: false,
+      },
+    ],
+  },
+];
+
 export const HUD_STATS = [
   { icon: "✚", value: "10", label: "jogadores por sala" },
   { icon: "◈", value: "25", label: "armas no arsenal" },

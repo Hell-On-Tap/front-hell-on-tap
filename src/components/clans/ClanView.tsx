@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { JOIN_POLICY_LABELS, type Clan } from "@/lib/clan-api";
+import { backgroundCss } from "@/lib/image-crop";
 import { imageUrl } from "@/lib/profile-api";
 import ClanActions from "./ClanActions";
 import profile from "../profile/Profile.module.css";
@@ -10,13 +11,19 @@ const since = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" 
 export default function ClanView({ clan }: { clan: Clan }) {
   const banner = imageUrl(clan.bannerUrl);
   const logo = imageUrl(clan.logoUrl);
+  const bg = backgroundCss(clan.background);
   // membros agrupados por cargo, na ordem da hierarquia
   const groups = clan.roles
     .map((role) => ({ role, members: clan.members.filter((m) => m.roleId === role.id) }))
     .filter((g) => g.members.length);
 
   return (
-    <main className={profile.page}>
+    // cor de fundo do clã: aparece atrás do topo e some aos poucos na cor do site
+    <main
+      className={`${profile.page} ${styles.clanPage}`}
+      data-bg={!!bg || undefined}
+      style={bg ? ({ "--clan-bg": bg } as React.CSSProperties) : undefined}
+    >
       <div className={profile.banner}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={banner ?? "/background.png"} alt="" className={banner ? profile.bannerImg : profile.bannerDefault} />
@@ -24,7 +31,8 @@ export default function ClanView({ clan }: { clan: Clan }) {
 
       <section className={profile.card} aria-labelledby="clan-name">
         <div className={profile.identity}>
-          <div className={profile.avatar}>
+          {/* mesmas regras da foto do perfil: transparência e opção sem moldura */}
+          <div className={profile.avatar} data-image={!!logo} data-frame={clan.logoFrame !== false}>
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logo} alt={`Logo do clã ${clan.name}`} />

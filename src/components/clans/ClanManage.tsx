@@ -32,9 +32,11 @@ import {
   type PendingEntry,
 } from "@/lib/clan-api";
 import { can, canManageMember, canManageRole } from "@/lib/clan-rules";
+import { backgroundCss } from "@/lib/image-crop";
 import { imageUrl } from "@/lib/profile-api";
 import { useSession } from "@/lib/session";
 import fieldStyles from "../auth/AuthDialog.module.css";
+import BackgroundPicker from "../media/BackgroundPicker";
 import ImageCropper from "../media/ImageCropper";
 import styles from "./ClanManage.module.css";
 
@@ -571,6 +573,11 @@ function SettingsTab({
   const [tag, setTag] = useState(clan.tag);
   const [description, setDescription] = useState(clan.description ?? "");
   const [joinPolicy, setJoinPolicy] = useState<JoinPolicy>(clan.joinPolicy);
+  const [logoFrame, setLogoFrame] = useState(clan.logoFrame !== false);
+  // cor de fundo do clã: muda a prévia na hora e salva no botão
+  const [background, setBackground] = useState<string | null>(clan.background ?? null);
+  const bgChanged = background !== (clan.background ?? null);
+  const bgCss = backgroundCss(background);
   const [newOwner, setNewOwner] = useState("");
   const [confirmTag, setConfirmTag] = useState("");
   const [imageError, setImageError] = useState("");
@@ -587,6 +594,21 @@ function SettingsTab({
     if (!Object.keys(changes).length) return;
     const ok = await run(() => updateClan(token, clan.tag, changes), "Clã atualizado.");
     if (ok && changes.tag) onTagChange(changes.tag);
+  }
+
+  /** Borda da logo: salva na hora, como trocar ou remover a logo. */
+  async function changeFrame(next: boolean) {
+    if (next === logoFrame) return;
+    setLogoFrame(next);
+    const ok = await run(() => updateClan(token, clan.tag, { logoFrame: next }), next ? "Logo com borda." : "Logo sem borda.");
+    if (!ok) setLogoFrame(!next);
+  }
+
+  async function saveBackground() {
+    await run(
+      () => updateClan(token, clan.tag, { background: background ?? "" }),
+      background ? "Cor do clã salva." : "Cor do clã voltou ao padrão.",
+    );
   }
 
   function pickImage(kind: "logo" | "banner", input: HTMLInputElement) {
@@ -630,7 +652,7 @@ function SettingsTab({
               </div>
             </div>
             <div className={styles.mediaLogoRow}>
-              <span className={styles.mediaLogo}>
+              <span className={styles.mediaLogo} data-image={!!logo} data-frame={logoFrame}>
                 {logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={logo} alt="" />
@@ -648,6 +670,56 @@ function SettingsTab({
                 </button>
               )}
             </div>
+            <div className={styles.frameChoice}>
+              <span id="logo-frame-label">Borda da logo</span>
+              <div className={styles.frameOptions} role="radiogroup" aria-labelledby="logo-frame-label">
+                <button type="button" role="radio" aria-checked={logoFrame} onClick={() => changeFrame(true)}>
+                  Com borda
+                </button>
+                <button type="button" role="radio" aria-checked={!logoFrame} onClick={() => changeFrame(false)}>
+                  Sem borda
+                </button>
+              </div>
+              <small>Sem borda, a logo fica solta, o que combina com logos de fundo transparente.</small>
+            </div>
+
+            <fieldset className={styles.bgChoice}>
+              <legend>Cor de fundo do clã</legend>
+              {/* prévia: como a cor aparece atrás do topo da página e nos cartões */}
+              <div
+                className={styles.bgPreview}
+                data-empty={!bgCss || undefined}
+                style={bgCss ? ({ "--clan-bg": bgCss } as React.CSSProperties) : undefined}
+              >
+                <span className={styles.bgPreviewLogo} data-frame={logoFrame}>
+                  {logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logo} alt="" />
+                  ) : (
+                    <span aria-hidden="true">{clan.tag}</span>
+                  )}
+                </span>
+                <span className={styles.bgPreviewText}>
+                  <small>[{clan.tag}]</small>
+                  {clan.name}
+                </span>
+              </div>
+              <BackgroundPicker value={background} onChange={setBackground} noneLabel="Padrão do site" label="Cor de fundo do clã" />
+              <p className={styles.bgHint}>
+                Aparece atrás do topo da página do clã e como faixa nos cartões. Use uma cor pronta, uma cor qualquer (+) ou
+                monte um gradiente (G).
+              </p>
+              {bgChanged && (
+                <div className={styles.bgActions}>
+                  <button type="button" className={styles.primarySmall} onClick={saveBackground}>
+                    Salvar cor
+                  </button>
+                  <button type="button" className={styles.linkBtn} onClick={() => setBackground(clan.background ?? null)}>
+                    Desfazer
+                  </button>
+                </div>
+              )}
+            </fieldset>
             {imageError && <p className={fieldStyles.error}>{imageError}</p>}
           </div>
 

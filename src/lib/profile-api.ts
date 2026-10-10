@@ -30,6 +30,8 @@ export type Profile = {
   avatarUrl: string | null;
   bannerUrl: string | null;
   memberSince: string;
+  /** moldura em volta da foto (false = foto solta, sem borda) */
+  avatarFrame: boolean;
   /** seções na ordem escolhida pelo dono; visible=false = oculta para todos */
   layout: ProfileSection[];
 };
@@ -60,7 +62,7 @@ const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export function updateProfile(
   token: string,
-  changes: { nickname?: string; displayName?: string; bio?: string; layout?: ProfileSection[] },
+  changes: { nickname?: string; displayName?: string; bio?: string; avatarFrame?: boolean; layout?: ProfileSection[] },
 ) {
   return request<MyProfile>("/profiles/me", {
     method: "PATCH",

@@ -474,6 +474,11 @@
   object-fit: cover;
 }
 
+/* foto com transparência: mostra a página atrás, não o vermelho */
+.avatar[data-image="true"] {
+  background: transparent;
+}
+
 .avatar > span {
   font-family: var(--font-pixel);
   font-size: 1.1rem;

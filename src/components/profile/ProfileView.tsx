@@ -23,7 +23,8 @@ export default function ProfileView({ profile, clans = [] }: { profile: Profile;
 
       <section className={styles.card} aria-labelledby="profile-name">
         <div className={styles.identity}>
-          <div className={styles.avatar}>
+          {/* data-image: com foto, o fundo fica transparente; data-frame=false: sem moldura */}
+          <div className={styles.avatar} data-image={!!avatar} data-frame={profile.avatarFrame !== false}>
             {avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatar} alt={`Foto de ${name}`} />

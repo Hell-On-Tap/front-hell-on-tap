@@ -492,6 +492,58 @@
   object-fit: cover;
 }
 
+.mediaLogo[data-image="true"] {
+  background: transparent;
+}
+
+.mediaLogo[data-frame="false"] {
+  border-color: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.mediaLogo[data-frame="false"] img {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
+}
+
+/* Borda da logo: Com borda / Sem borda */
+.frameChoice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--bone-dim);
+}
+
+.frameChoice small {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+}
+
+.frameOptions {
+  display: inline-flex;
+  border: 1px solid rgba(255, 180, 58, 0.45);
+}
+
+.frameOptions button {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+}
+
+.frameOptions button[aria-checked="true"] {
+  color: var(--blood-deep);
+  background: var(--hud);
+}
+
+.frameOptions button:focus-visible {
+  outline: 2px solid var(--hud);
+  outline-offset: 2px;
+}
+
 .mediaLogo span {
   font-family: var(--font-pixel);
   font-size: 1.3rem;
@@ -556,4 +608,91 @@
   .editorRow {
     flex-wrap: wrap;
   }
+}
+
+/* ---------- Cor de fundo do clã ---------- */
+.bgChoice {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  padding: 0.85rem;
+  border: 1px solid rgba(255, 180, 58, 0.3);
+  background: rgba(10, 0, 0, 0.35);
+}
+
+.bgChoice legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+  color: var(--hud);
+}
+
+/* mesma mistura da página do clã: a cor por baixo, escurecendo para o vermelho do site */
+.bgPreview {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 180, 58, 0.25);
+  background:
+    linear-gradient(to bottom, rgba(36, 3, 3, 0.35), rgba(74, 8, 8, 0.75)),
+    var(--clan-bg, var(--blood));
+}
+
+.bgPreview[data-empty] {
+  background: var(--blood);
+}
+
+.bgPreviewLogo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  overflow: hidden;
+  border: 2px solid var(--hud);
+}
+
+.bgPreviewLogo[data-frame="false"] {
+  border-color: transparent;
+  overflow: visible;
+}
+
+.bgPreviewLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bgPreviewLogo span {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  color: var(--hud);
+}
+
+.bgPreviewText {
+  display: grid;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--bone);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.bgPreviewText small {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--hud);
+}
+
+.bgHint {
+  font-size: 0.8rem;
+  color: var(--bone-dim);
+}
+
+.bgActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }

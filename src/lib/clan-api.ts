@@ -28,6 +28,10 @@ export type ClanSummary = {
   name: string;
   joinPolicy: JoinPolicy;
   logoUrl: string | null;
+  /** moldura em volta da logo (false = logo solta, sem borda) */
+  logoFrame: boolean;
+  /** cor de fundo do clã: fundo pronto, #rrggbb ou "grad:..." (null = padrão do site) */
+  background: string | null;
   memberCount: number;
 };
 
@@ -119,7 +123,7 @@ export const clanViewer = (token: string, tag: string) => request<ClanViewer>(`$
 export const updateClan = (
   token: string,
   tag: string,
-  body: Partial<{ name: string; tag: string; description: string; joinPolicy: JoinPolicy }>,
+  body: Partial<{ name: string; tag: string; description: string; joinPolicy: JoinPolicy; logoFrame: boolean; background: string }>,
 ) => request<Clan>(tagPath(tag), json(token, "PATCH", body));
 export const deleteClan = (token: string, tag: string) => request(tagPath(tag), json(token, "DELETE"));
 export const transferClan = (token: string, tag: string, userId: string) =>

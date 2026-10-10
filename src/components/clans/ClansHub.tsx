@@ -103,7 +103,7 @@ export default function ClansHub() {
           <ul className={styles.invites}>
             {invites.map((inv) => (
               <li key={inv.id} className={styles.invite}>
-                <span className={styles.inviteLogo}>
+                <span className={styles.inviteLogo} data-image={!!inv.clan.logoUrl} data-frame={inv.clan.logoFrame !== false}>
                   {imageUrl(inv.clan.logoUrl) ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={imageUrl(inv.clan.logoUrl)!} alt="" />
