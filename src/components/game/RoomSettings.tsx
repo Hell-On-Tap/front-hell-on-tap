@@ -6,6 +6,11 @@ import { AuthError } from "@/lib/auth-api";
 import {
   createRoom,
   DEFAULT_MAP,
+  DEFAULT_RULES,
+  MODES,
+  RULE_LIMITS,
+  type GameMode,
+  type MatchRules,
   listMaps,
   MAPS,
   mapPreview,
@@ -20,6 +25,74 @@ import { playPath } from "@/lib/home-data";
 import styles from "./Rooms.module.css";
 
 const ORDER: Privacy[] = ["public", "friends", "private"];
+const MODE_ORDER: GameMode[] = ["deathmatch", "competitive"];
+
+/** Campos de economia e tempo do 5x5 (o servidor confere os limites). */
+const RULE_FIELDS: { key: Exclude<keyof MatchRules, "friendlyFire">; label: string; unit: string; hint?: string }[] = [
+  { key: "maxRounds", label: "Rodadas", unit: "", hint: "30 = MR15 (vence quem fizer 16); troca de lado no meio" },
+  { key: "startMoney", label: "Dinheiro inicial", unit: "$" },
+  { key: "maxMoney", label: "Dinheiro máximo", unit: "$" },
+  { key: "roundTime", label: "Tempo da rodada", unit: "s" },
+  { key: "freezeTime", label: "Congelamento", unit: "s", hint: "parado no começo da rodada, comprando" },
+  { key: "buyTime", label: "Tempo de compra", unit: "s", hint: "depois do congelamento" },
+  { key: "c4Timer", label: "Tempo da C4", unit: "s" },
+  { key: "killReward", label: "Prêmio por abate", unit: "$" },
+  { key: "winReward", label: "Prêmio de vitória", unit: "$" },
+  { key: "bombReward", label: "Prêmio da bomba", unit: "$", hint: "explodiu ou desarmou" },
+  { key: "lossBonus", label: "Bônus de derrota", unit: "$", hint: "+$500 a cada derrota seguida" },
+  { key: "lossBonusMax", label: "Bônus de derrota máx.", unit: "$" },
+];
+
+/** Economia e tempo do 5x5: números do CS 1.6 por padrão, o dono muda. */
+function RulesFields({ value, onChange, idPrefix }: { value: MatchRules; onChange: (next: MatchRules) => void; idPrefix: string }) {
+  const changed = (Object.keys(DEFAULT_RULES) as (keyof MatchRules)[]).some((k) => value[k] !== DEFAULT_RULES[k]);
+  return (
+    <fieldset className={styles.field}>
+      <legend className={styles.label}>ECONOMIA E TEMPO (5X5)</legend>
+      <div className={styles.rulesGrid}>
+        {RULE_FIELDS.map((f) => {
+          const [min, max] = RULE_LIMITS[f.key];
+          return (
+            <label key={f.key} className={styles.rule} title={f.hint}>
+              <span>
+                {f.label}
+                {f.unit && <small> ({f.unit})</small>}
+              </span>
+              <input
+                id={`${idPrefix}-${f.key}`}
+                className={styles.input}
+                type="number"
+                inputMode="numeric"
+                min={min}
+                max={max}
+                step={1}
+                value={value[f.key]}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (Number.isFinite(n)) onChange({ ...value, [f.key]: n });
+                }}
+                onBlur={() => onChange({ ...value, [f.key]: Math.min(max, Math.max(min, Math.round(value[f.key]))) })}
+              />
+            </label>
+          );
+        })}
+      </div>
+      <div className={styles.rulesFoot}>
+        <label className={styles.check}>
+          <input type="checkbox" checked={value.friendlyFire} onChange={(e) => onChange({ ...value, friendlyFire: e.target.checked })} />
+          Fogo amigo (35% do dano; matar aliado custa $3300)
+        </label>
+        <button type="button" className={styles.smallGhost} disabled={!changed} onClick={() => onChange({ ...DEFAULT_RULES })}>
+          Padrão do CS
+        </button>
+      </div>
+      <p className={styles.rulesNote}>
+        No jogo, o dono também muda tudo pelo console (mp_startmoney, mp_roundtime, mp_freezetime, mp_buytime, mp_c4timer, mp_maxrounds,
+        mp_restartgame) e libera os comandos de treino com <code>sv_cheats 1</code>.
+      </p>
+    </fieldset>
+  );
+}
 
 /** Ícone de cada privacidade (globo, dupla, cadeado). */
 export function PrivacyIcon({ privacy }: { privacy: Privacy }) {
@@ -84,6 +157,19 @@ export function RoomSettingsFields({
           onChange={(e) => onChange({ ...value, name: e.target.value })}
         />
       </div>
+
+      <fieldset className={styles.field}>
+        <legend className={styles.label}>MODO</legend>
+        <div className={styles.privacyOptions} data-count="2">
+          {MODE_ORDER.map((m) => (
+            <label key={m} className={styles.privacyOption}>
+              <input type="radio" name={`${idPrefix}-mode`} value={m} checked={value.mode === m} onChange={() => onChange({ ...value, mode: m })} />
+              <strong>{MODES[m].label}</strong>
+              <span>{MODES[m].hint}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <fieldset className={styles.field}>
         <legend className={styles.label}>QUEM PODE ENTRAR</legend>
@@ -161,22 +247,45 @@ export function RoomSettingsFields({
           </small>
         </div>
       </div>
+
+      {value.mode === "competitive" && (
+        <RulesFields value={value.rules} onChange={(rules) => onChange({ ...value, rules })} idPrefix={idPrefix} />
+      )}
     </div>
   );
 }
 
 /** Botão "Criar sala" + diálogo. Ao criar, abre a sala de espera em /jogar. */
-export function CreateRoomButton({ token, nickname, className }: { token: string; nickname: string; className?: string }) {
+export function CreateRoomButton({
+  token,
+  nickname,
+  className,
+  mode = "deathmatch",
+}: {
+  token: string;
+  nickname: string;
+  className?: string;
+  /** modo já marcado ao abrir (o lobby passa o modo escolhido) */
+  mode?: GameMode;
+}) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   // o botão aparece mais de uma vez na página (topo e lista de salas): ids únicos
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const [settings, setSettings] = useState<RoomSettings>({ name: "", privacy: "public", maxPlayers: MAX_PLAYERS, map: DEFAULT_MAP });
+  const [settings, setSettings] = useState<RoomSettings>({
+    name: "",
+    privacy: "public",
+    maxPlayers: MAX_PLAYERS,
+    map: mode === "competitive" ? "de_dust" : DEFAULT_MAP,
+    mode,
+    rules: { ...DEFAULT_RULES },
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   function open() {
-    setSettings((s) => ({ ...s, name: s.name || `Sala de ${nickname}` }));
+    // o 5x5 precisa de mapa com bombsite (o Dust é o padrão)
+    setSettings((s) => ({ ...s, name: s.name || `Sala de ${nickname}`, mode, map: s.mode === mode ? s.map : mode === "competitive" ? "de_dust" : DEFAULT_MAP }));
     setError("");
     dialogRef.current?.showModal();
   }
@@ -190,7 +299,8 @@ export function CreateRoomButton({ token, nickname, className }: { token: string
     setBusy(true);
     setError("");
     try {
-      const room = await createRoom(token, { ...settings, name: settings.name.trim() });
+      const { rules, ...rest } = settings;
+      const room = await createRoom(token, { ...rest, name: settings.name.trim(), ...(settings.mode === "competitive" ? { rules } : {}) });
       window.dispatchEvent(new Event(ROOMS_CHANGED));
       // diálogo modal aberto deixaria a próxima página sem cliques (o Next guarda a página anterior)
       dialogRef.current?.close();
@@ -220,7 +330,7 @@ export function CreateRoomButton({ token, nickname, className }: { token: string
           <div className={styles.dialogHead}>
             <div>
               <h2 id={`${uid}-title`}>Criar sala</h2>
-              <p>Mata-mata online. Você é o dono: convida os amigos e inicia a partida.</p>
+              <p>{MODES[settings.mode].label} online. Você é o dono: convida os amigos e inicia a partida.</p>
             </div>
             <button type="button" className={styles.close} aria-label="Fechar" onClick={() => dialogRef.current?.close()}>
               ×

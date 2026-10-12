@@ -63,10 +63,10 @@ export default function ProfileStats({ nickname }: { nickname: string }) {
       <p className={styles.note}>
         {failed
           ? "Não foi possível carregar as estatísticas agora."
-          : mode === "competitive"
-            ? "O 5x5 ainda não está disponível. Os números aparecem aqui quando o modo abrir."
-            : empty
-              ? "Ainda sem partidas online. O treino com bots não conta."
+          : empty
+            ? "Ainda sem partidas online. O treino com bots não conta."
+            : mode === "competitive"
+              ? "Partidas online do 5x5 (o aquecimento não conta)."
               : "Partidas online de mata-mata. O treino com bots não conta."}
       </p>
     </>

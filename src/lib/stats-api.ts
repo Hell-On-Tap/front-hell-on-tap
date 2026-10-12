@@ -10,7 +10,7 @@ export type LeaderRow = ModeStats & { id: string; nickname: string; displayName:
 
 export const STATS_MODES: { id: StatsMode; label: string; soon?: boolean }[] = [
   { id: "deathmatch", label: "Mata-mata" },
-  { id: "competitive", label: "5x5", soon: true },
+  { id: "competitive", label: "5x5" },
 ];
 
 function ensureApi() {

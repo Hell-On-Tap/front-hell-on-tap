@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFriends } from "@/components/lobby/use-friends";
 import { AuthError } from "@/lib/auth-api";
-import { DEFAULT_MAP, getRoom, inviteToRoom, mapInfo, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
+import { DEFAULT_MAP, DEFAULT_RULES, getRoom, inviteToRoom, mapInfo, MODES, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
 import type { Skin } from "@/lib/game-bridge";
 import { PrivacyBadge, RoomSettingsFields } from "./RoomSettings";
 import SkinPicker from "./SkinPicker";
@@ -14,7 +14,8 @@ export type LiveRoom = {
   code: string;
   isHost: boolean;
   started: boolean;
-  players: { id: string; name: string; skin: string; isHost: boolean; you: boolean }[];
+  /** `team` só no 5x5 (t = Terroristas, ct = Contra-Terroristas) */
+  players: { id: string; name: string; skin: string; isHost: boolean; you: boolean; team?: string }[];
 };
 
 type Props = {
@@ -71,7 +72,14 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
 
   function openSettings() {
     if (!meta) return;
-    setDraft({ name: meta.name, privacy: meta.privacy, maxPlayers: meta.maxPlayers, map: meta.map ?? DEFAULT_MAP });
+    setDraft({
+      name: meta.name,
+      privacy: meta.privacy,
+      maxPlayers: meta.maxPlayers,
+      map: meta.map ?? DEFAULT_MAP,
+      mode: meta.mode ?? "deathmatch",
+      rules: { ...DEFAULT_RULES, ...meta.rules },
+    });
     setEditing(true);
     setMessage(null);
   }
@@ -82,7 +90,9 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
     setSaving(true);
     setMessage(null);
     try {
-      const room = await updateRoom(token, code, { ...draft, name: draft.name.trim() });
+      // regras só no 5x5 (o servidor não deixa mudar modo e regras depois que a partida começa)
+      const { rules, ...rest } = draft;
+      const room = await updateRoom(token, code, { ...rest, name: draft.name.trim(), ...(draft.mode === "competitive" ? { rules } : {}) });
       setMeta(room);
       setEditing(false);
       setMessage({ kind: "ok", text: "Configurações salvas." });
@@ -126,7 +136,7 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
       <div className={styles.waitingShell}>
         <header className={styles.waitingHead}>
           <div className={styles.waitingTitle}>
-            <span className={styles.eyebrow}>MATA-MATA ONLINE · SALA DE ESPERA</span>
+            <span className={styles.eyebrow}>{MODES[meta?.mode ?? "deathmatch"].label.toUpperCase()} ONLINE · SALA DE ESPERA</span>
             <h1>{meta?.name ?? "Sala"}</h1>
             <div className={styles.waitingTags}>
               {meta && <PrivacyBadge privacy={meta.privacy} />}
@@ -134,6 +144,11 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
                 Código <span className={styles.code}>{code}</span>
               </span>
               {meta && <span>· Mapa: {mapInfo(meta.map).name}</span>}
+              {meta?.mode === "competitive" && meta.rules && (
+                <span>
+                  · {meta.rules.maxRounds} rodadas · ${meta.rules.startMoney} inicial · rodada de {Math.round(meta.rules.roundTime)} s
+                </span>
+              )}
               {meta && <span>· Dono: {meta.owner}</span>}
             </div>
           </div>
@@ -193,7 +208,8 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
                       <span className={styles.playerText}>
                         <span className={styles.playerName}>{p.name}</span>
                         <span className={styles.playerTags}>
-                          {[p.isHost && "ANFITRIÃO", p.you && "VOCÊ"].filter(Boolean).join(" · ") || skin?.label}
+                          {[p.team === "t" ? "TR" : p.team === "ct" ? "CT" : "", p.isHost && "ANFITRIÃO", p.you && "VOCÊ"].filter(Boolean).join(" · ") ||
+                            skin?.label}
                         </span>
                       </span>
                     </li>

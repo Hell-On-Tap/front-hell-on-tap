@@ -73,7 +73,7 @@ export default function ScoreboardPanel({ nickname }: { nickname: string }) {
         </table>
         {list && !list.length && (
           <p className={styles.boardEmpty}>
-            {mode === "competitive" ? "O 5x5 ainda não está disponível." : "Ninguém no placar ainda. Jogue uma partida online para aparecer aqui."}
+            Ninguém no placar ainda. Jogue uma partida online para aparecer aqui.
           </p>
         )}
         {!list && !error && <p className={styles.boardEmpty}>Carregando…</p>}

@@ -69,8 +69,8 @@ export default function PlayPanel({ token, nickname }: { token: string; nickname
               {group.name} · {selected.name}
             </strong>
           </div>
-          {selected.id === "online" ? (
-            <CreateRoomButton token={token} nickname={nickname} className={styles.play} />
+          {selected.id === "online" || selected.id === "5v5" ? (
+            <CreateRoomButton token={token} nickname={nickname} className={styles.play} mode={selected.id === "5v5" ? "competitive" : "deathmatch"} />
           ) : (
             <Link href={playPath("bots")} className={styles.play}>
               Jogar
@@ -132,7 +132,7 @@ export default function PlayPanel({ token, nickname }: { token: string; nickname
               );
             })}
           </div>
-          {g.options.some((o) => o.id === "online") && selected.id === "online" && (
+          {g.options.some((o) => o.id === selected.id) && (selected.id === "online" || selected.id === "5v5") && (
             <RoomBrowser token={token} nickname={nickname} />
           )}
         </section>

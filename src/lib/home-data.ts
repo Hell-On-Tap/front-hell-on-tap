@@ -44,8 +44,9 @@ export const MODES: GameMode[] = [
     key: "3",
     name: "Competitivo 5v5",
     description: "Dois times, uma vida por rodada, economia e bomba.",
-    detail: "Em desenvolvimento. Chega depois dos times e das rodadas.",
-    available: false,
+    detail: "MR15 por padrão, economia do CS 1.6, granadas e C4. O dono escolhe as regras.",
+    available: true,
+    href: PLAY_HREF,
   },
 ];
 
@@ -91,16 +92,16 @@ export const MODE_GROUPS: ModeGroup[] = [
   {
     id: "competitivo",
     name: "Competitivo 5v5",
-    detail: "Dois times, uma vida por rodada, economia e bomba. Chega depois dos times e das rodadas.",
-    available: false,
+    detail: "Dois times, uma vida por rodada, economia, granadas e C4. MR15 por padrão; o dono escolhe dinheiro, tempos e rodadas.",
+    available: true,
     options: [
       {
         id: "5v5",
         key: "3",
         name: "Partida 5v5",
-        description: "Em desenvolvimento.",
+        description: "Crie a sala, chame 9 amigos e jogue rodadas com compra, granadas e bomba.",
         image: "/modes/competitivo.webp",
-        available: false,
+        available: true,
       },
     ],
   },

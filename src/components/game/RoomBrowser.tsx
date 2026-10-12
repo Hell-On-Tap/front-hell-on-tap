@@ -157,10 +157,14 @@ export default function RoomBrowser({ token, nickname }: { token: string; nickna
                   <div className={styles.roomTitle}>
                     <span className={styles.roomName}>{r.name}</span>
                     <PrivacyBadge privacy={r.privacy} />
+                    <span className={styles.modeBadge} data-mode={r.mode ?? "deathmatch"}>
+                      {r.mode === "competitive" ? "5X5" : "MATA-MATA"}
+                    </span>
                     {r.mine && <span className={styles.mineTag}>SUA SALA</span>}
                   </div>
                   <span className={styles.roomMeta} title={r.names.join(", ")}>
-                    {mapInfo(r.map).name} · Dono: {r.owner}
+                    {mapInfo(r.map).name}
+                    {r.mode === "competitive" && r.started && r.score ? ` · TR ${r.score.t} × ${r.score.ct} CT` : ""} · Dono: {r.owner}
                     {r.names.length ? ` · ${r.names.join(", ")}` : " · ninguém entrou ainda"}
                   </span>
                 </div>
