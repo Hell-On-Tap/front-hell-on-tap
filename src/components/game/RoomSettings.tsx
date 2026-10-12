@@ -1,9 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AuthError } from "@/lib/auth-api";
-import { createRoom, MAX_PLAYERS, MIN_PLAYERS, PRIVACY, ROOMS_CHANGED, type Privacy, type RoomSettings } from "@/lib/game-api";
+import {
+  createRoom,
+  DEFAULT_MAP,
+  listMaps,
+  MAPS,
+  mapPreview,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  PRIVACY,
+  ROOMS_CHANGED,
+  type Privacy,
+  type RoomSettings,
+} from "@/lib/game-api";
 import { playPath } from "@/lib/home-data";
 import styles from "./Rooms.module.css";
 
@@ -47,6 +59,15 @@ export function RoomSettingsFields({
   minPlayers?: number;
 }) {
   const min = Math.max(MIN_PLAYERS, minPlayers);
+  // mapas do servidor do jogo (os .bsp da pasta maps/ dele)
+  const [maps, setMaps] = useState(MAPS);
+  useEffect(() => {
+    let alive = true;
+    void listMaps().then((list) => alive && setMaps(list));
+    return () => {
+      alive = false;
+    };
+  }, []);
   return (
     <div className={styles.fields}>
       <div className={styles.field}>
@@ -81,6 +102,33 @@ export function RoomSettingsFields({
                 {PRIVACY[p].label}
               </strong>
               <span>{PRIVACY[p].hint}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className={styles.field}>
+        <legend className={styles.label}>MAPA</legend>
+        <div className={styles.mapOptions}>
+          {maps.map((m) => (
+            <label key={m.id} className={styles.mapOption}>
+              <input
+                type="radio"
+                name={`${idPrefix}-map`}
+                value={m.id}
+                checked={value.map === m.id}
+                onChange={() => onChange({ ...value, map: m.id })}
+              />
+              {mapPreview(m.id) ? (
+                // eslint-disable-next-line @next/next/no-img-element -- prévia em pixel art, sem otimização
+                <img src={mapPreview(m.id)!} alt="" width={160} height={96} />
+              ) : (
+                <span className={styles.mapBlank} aria-hidden="true">
+                  {m.name.slice(0, 2).toUpperCase()}
+                </span>
+              )}
+              <strong>{m.name}</strong>
+              <span>{m.hint}</span>
             </label>
           ))}
         </div>
@@ -123,7 +171,7 @@ export function CreateRoomButton({ token, nickname, className }: { token: string
   const dialogRef = useRef<HTMLDialogElement>(null);
   // o botão aparece mais de uma vez na página (topo e lista de salas): ids únicos
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const [settings, setSettings] = useState<RoomSettings>({ name: "", privacy: "public", maxPlayers: MAX_PLAYERS });
+  const [settings, setSettings] = useState<RoomSettings>({ name: "", privacy: "public", maxPlayers: MAX_PLAYERS, map: DEFAULT_MAP });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 

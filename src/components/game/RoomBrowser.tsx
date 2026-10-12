@@ -11,6 +11,7 @@ import {
   ROOMS_CHANGED,
   type GameInvite,
   type GameRoom,
+  mapInfo,
 } from "@/lib/game-api";
 import { playPath } from "@/lib/home-data";
 import { CreateRoomButton, PrivacyBadge } from "./RoomSettings";
@@ -159,7 +160,7 @@ export default function RoomBrowser({ token, nickname }: { token: string; nickna
                     {r.mine && <span className={styles.mineTag}>SUA SALA</span>}
                   </div>
                   <span className={styles.roomMeta} title={r.names.join(", ")}>
-                    Dono: {r.owner}
+                    {mapInfo(r.map).name} · Dono: {r.owner}
                     {r.names.length ? ` · ${r.names.join(", ")}` : " · ninguém entrou ainda"}
                   </span>
                 </div>

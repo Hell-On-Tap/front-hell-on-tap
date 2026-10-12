@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFriends } from "@/components/lobby/use-friends";
 import { AuthError } from "@/lib/auth-api";
-import { getRoom, inviteToRoom, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
+import { DEFAULT_MAP, getRoom, inviteToRoom, mapInfo, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
 import type { Skin } from "@/lib/game-bridge";
 import { PrivacyBadge, RoomSettingsFields } from "./RoomSettings";
 import SkinPicker from "./SkinPicker";
@@ -71,7 +71,7 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
 
   function openSettings() {
     if (!meta) return;
-    setDraft({ name: meta.name, privacy: meta.privacy, maxPlayers: meta.maxPlayers });
+    setDraft({ name: meta.name, privacy: meta.privacy, maxPlayers: meta.maxPlayers, map: meta.map ?? DEFAULT_MAP });
     setEditing(true);
     setMessage(null);
   }
@@ -133,6 +133,7 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
               <span>
                 Código <span className={styles.code}>{code}</span>
               </span>
+              {meta && <span>· Mapa: {mapInfo(meta.map).name}</span>}
               {meta && <span>· Dono: {meta.owner}</span>}
             </div>
           </div>

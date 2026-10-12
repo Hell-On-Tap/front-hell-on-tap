@@ -17,6 +17,8 @@ export type GameRoom = {
   started: boolean;
   owner: string;
   mine: boolean;
+  /** mapa da sala (servidores antigos não mandam: fy_snow) */
+  map?: string;
 };
 
 export type GameInvite = {
@@ -30,7 +32,40 @@ export type GameInvite = {
   started: boolean;
 };
 
-export type RoomSettings = { name: string; privacy: Privacy; maxPlayers: number };
+export type RoomSettings = { name: string; privacy: Privacy; maxPlayers: number; map: string };
+
+export type GameMap = { id: string; name: string; hint: string };
+
+/**
+ * Mapas conhecidos (descrição e vista de cima em /public/maps). A lista de verdade vem
+ * do servidor do jogo (`listMaps`): qualquer .bsp do CS 1.6 posto na pasta maps/ dele
+ * aparece, mesmo sem descrição ou prévia aqui.
+ */
+export const MAPS: GameMap[] = [
+  { id: "fy_snow", name: "Snow", hint: "Arena pequena e aberta: tiroteio o tempo todo." },
+  { id: "de_dust", name: "Dust", hint: "Clássico do CS 1.6: rampas, túnel e caixas." },
+  { id: "de_inferno", name: "Inferno", hint: "Vila do CS 1.6: becos, escadas e pátios." },
+];
+const PREVIEWS = new Set(MAPS.map((m) => m.id));
+export const DEFAULT_MAP = "fy_snow";
+let known: GameMap[] = MAPS;
+export const mapInfo = (id?: string): GameMap =>
+  known.find((m) => m.id === id) ?? (id ? { id, name: id, hint: "" } : MAPS[0]);
+/** Vista de cima (só dos mapas conhecidos); null = sem imagem. */
+export const mapPreview = (id?: string) => (id && PREVIEWS.has(id) ? `/maps/${id}.png` : null);
+
+/** Mapas que o servidor do jogo tem (cai na lista conhecida se ele não responder). */
+export async function listMaps(): Promise<GameMap[]> {
+  try {
+    const { maps } = await call<{ maps: { id: string; name: string }[] }>("/maps", null);
+    if (Array.isArray(maps) && maps.length) {
+      known = maps.map((m) => ({ id: m.id, name: m.name, hint: MAPS.find((k) => k.id === m.id)?.hint ?? "Mapa do CS 1.6." }));
+    }
+  } catch {
+    /* servidor fora do ar: lista conhecida */
+  }
+  return known;
+}
 
 export const PRIVACY: Record<Privacy, { label: string; hint: string }> = {
   public: { label: "Pública", hint: "Aparece para todo mundo na lista de salas." },
