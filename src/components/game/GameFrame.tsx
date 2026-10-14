@@ -86,7 +86,18 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
         setStage({ kind: "playing" });
         showGame(true);
       } else if (data.type === "hot:team-saved") {
-        setTeamError(typeof data.error === "string" ? data.error : null);
+        const error = typeof data.error === "string" ? data.error : null;
+        setTeamError(error);
+        if (!error && (data.team === "t" || data.team === "ct")) {
+          const team = data.team;
+          setLive((current) => current && ({
+            ...current,
+            players: current.players.map((player) => player.you
+              ? { ...player, team, ...(typeof data.skin === "string" ? { skin: data.skin } : {}) }
+              : player),
+          }));
+          if (typeof data.skin === "string") setMySkin(data.skin);
+        }
       } else if (data.type === "hot:error") {
         showGame(false);
         setStage((s) => ({
