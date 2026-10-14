@@ -34,7 +34,7 @@ const releases: Release[] = [
       {
         title: "Locomoção e Navegação dos Bots",
         description:
-          "Ajustamos a locomoção para que os bots não fiquem pulando repetidamente contra paredes ou quinas. Eles agora pulam apenas uma vez em desníveis baixos e realizam manobras inteligentes de desvio lateral e recálculo de rota quando encontram obstáculos.",
+          "Os bots não pulam mais repetidamente contra paredes ou caixas que não conseguem subir. Quando encontram obstáculos sólidos altos à sua frente, eles cessam o pulo, param o avanço frontal e realizam manobras inteligentes de desvio lateral e recálculo de rota.",
       },
       {
         title: "Fechamento Automático de Salas",
@@ -42,9 +42,9 @@ const releases: Release[] = [
           "Salas do Casual 5v5 que contenham apenas bots são fechadas automaticamente assim que o último jogador humano se desconecta ou sai, liberando recursos do servidor.",
       },
       {
-        title: "Câmeras do Modo Espectador no Online",
+        title: "Câmeras e Áudio 3D do Modo Espectador",
         description:
-          "Expandimos o modo espectador nas partidas online e 5v5: além da visão em primeira pessoa, jogadores eliminados podem alternar entre a câmera orbital em terceira pessoa (girando livremente com o mouse) e a câmera livre (noclip) controlada por WASD.",
+          "Expandimos o modo espectador nas partidas online e 5v5: além da visão em primeira pessoa, jogadores eliminados podem alternar entre a câmera orbital em terceira pessoa (girando livremente com o mouse) e a câmera livre (noclip) controlada por WASD, com posicionamento e espacialização do áudio 3D acompanhando a câmera livre em tempo real.",
       },
       {
         title: "Física de Drop e Coleta de Armas e Granadas",
