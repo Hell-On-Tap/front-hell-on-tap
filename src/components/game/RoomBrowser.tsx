@@ -158,7 +158,7 @@ export default function RoomBrowser({ token, nickname }: { token: string; nickna
                     <span className={styles.roomName}>{r.name}</span>
                     <PrivacyBadge privacy={r.privacy} />
                     <span className={styles.modeBadge} data-mode={r.mode ?? "deathmatch"}>
-                      {r.mode === "competitive" ? "5X5" : "MATA-MATA"}
+                      {r.mode === "competitive" ? "CASUAL 5V5" : "MATA-MATA"}
                     </span>
                     {r.mine && <span className={styles.mineTag}>SUA SALA</span>}
                   </div>

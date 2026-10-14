@@ -66,7 +66,7 @@ export default function ProfileStats({ nickname }: { nickname: string }) {
           : empty
             ? "Ainda sem partidas online. O treino com bots não conta."
             : mode === "competitive"
-              ? "Partidas online do 5x5 (o aquecimento não conta)."
+              ? "Partidas online do Casual 5v5 (o aquecimento não conta)."
               : "Partidas online de mata-mata. O treino com bots não conta."}
       </p>
     </>

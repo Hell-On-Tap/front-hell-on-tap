@@ -42,7 +42,7 @@ export const MODES: GameMode[] = [
   },
   {
     key: "3",
-    name: "Competitivo 5v5",
+    name: "Casual 5v5",
     description: "Dois times, uma vida por rodada, economia e bomba.",
     detail: "MR15 por padrão, economia do CS 1.6, granadas e C4. O dono escolhe as regras.",
     available: true,
@@ -91,7 +91,7 @@ export const MODE_GROUPS: ModeGroup[] = [
   },
   {
     id: "competitivo",
-    name: "Competitivo 5v5",
+    name: "Casual 5v5",
     detail: "Dois times, uma vida por rodada, economia, granadas e C4. MR15 por padrão; o dono escolhe dinheiro, tempos e rodadas.",
     available: true,
     options: [

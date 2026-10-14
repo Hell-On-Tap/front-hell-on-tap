@@ -40,7 +40,7 @@ export type GameInvite = {
 export type GameMode = "deathmatch" | "competitive";
 export const MODES: Record<GameMode, { label: string; hint: string }> = {
   deathmatch: { label: "Mata-mata", hint: "Todos contra todos, renasce em 2,5 s, qualquer arma." },
-  competitive: { label: "Competitivo 5x5", hint: "Dois times, uma vida por rodada, economia, granadas e C4." },
+  competitive: { label: "Casual 5v5", hint: "Dois times, uma vida por rodada, economia, granadas e C4." },
 };
 
 /** Regras do 5x5 que o dono escolhe (tempos em segundos, dinheiro em $). Iguais às do servidor do jogo. */

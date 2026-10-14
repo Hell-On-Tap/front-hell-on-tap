@@ -16,7 +16,7 @@ const changes = [
   {
     title: "Armas e itens no chão",
     description:
-      "Ajustamos o drop e a coleta para respeitar os espaços de arma disponíveis. No competitivo, jogadores eliminados podem deixar armas, granadas e itens de objetivo para a equipe correta recolher.",
+      "Ajustamos o drop e a coleta para respeitar os espaços de arma disponíveis. No casual 5v5, jogadores eliminados podem deixar armas, granadas e itens de objetivo para a equipe correta recolher.",
   },
   {
     title: "Regras de coleta por equipe",
