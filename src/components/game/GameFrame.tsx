@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AuthError } from "@/lib/auth-api";
-import { onGameMessage, reloadGame, sendToGame, showGame, updateGame, useGameState, type Skin } from "@/lib/game-bridge";
+import { onGameMessage, reloadGame, sendToGame, showGame, updateGame, useGameState, type GameTeam, type Skin } from "@/lib/game-bridge";
 import { getRoom, savedSkin, storeSkin, type GameRoom } from "@/lib/game-api";
 import { equippedKnife, knifeChoice } from "@/lib/inventory";
 import { setGameActive } from "@/lib/player-store";
@@ -50,6 +50,7 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
   const [stage, setStage] = useState<Stage>({ kind: "checking" });
   const [live, setLive] = useState<LiveRoom | null>(null);
   const [mySkin, setMySkin] = useState("");
+  const [teamError, setTeamError] = useState<string | null>(null);
 
   const authed = hydrated && status === "authed" && !!token && !!user;
   // online sem sala: as salas ficam no lobby
@@ -84,6 +85,8 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
       } else if (data.type === "hot:started") {
         setStage({ kind: "playing" });
         showGame(true);
+      } else if (data.type === "hot:team-saved") {
+        setTeamError(typeof data.error === "string" ? data.error : null);
       } else if (data.type === "hot:error") {
         showGame(false);
         setStage((s) => ({
@@ -144,6 +147,10 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
     setMySkin(skin);
     storeSkin(skin);
     sendToGame({ type: "hot:skin", skin });
+  }, []);
+  const chooseTeam = useCallback((team: GameTeam) => {
+    setTeamError(null);
+    sendToGame({ type: "hot:team", team });
   }, []);
   const leave = useCallback(() => {
     sendToGame({ type: "hot:leave" });
@@ -230,6 +237,8 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
           skins={game.skins}
           mySkin={mySkin}
           onSkin={chooseSkin}
+          onTeam={chooseTeam}
+          teamError={teamError}
           onStart={() => sendToGame({ type: "hot:start" })}
           onLeave={leave}
           onGone={gone}

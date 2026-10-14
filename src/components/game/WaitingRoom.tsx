@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useFriends } from "@/components/lobby/use-friends";
 import { AuthError } from "@/lib/auth-api";
 import { DEFAULT_MAP, DEFAULT_RULES, getRoom, inviteToRoom, mapInfo, MODES, updateRoom, type GameRoom, type RoomSettings } from "@/lib/game-api";
-import type { Skin } from "@/lib/game-bridge";
+import type { GameTeam, Skin } from "@/lib/game-bridge";
 import { PrivacyBadge, RoomSettingsFields } from "./RoomSettings";
 import SkinPicker from "./SkinPicker";
 import styles from "./Rooms.module.css";
@@ -25,6 +25,8 @@ type Props = {
   skins: Skin[];
   mySkin: string;
   onSkin: (skin: string) => void;
+  onTeam: (team: GameTeam) => void;
+  teamError: string | null;
   onStart: () => void;
   onLeave: () => void;
   /** a sala sumiu do servidor */
@@ -32,7 +34,7 @@ type Props = {
 };
 
 /** Sala de espera no site, por cima do jogo: quem está, personagem, convites e "Iniciar". */
-export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, onStart, onLeave, onGone }: Props) {
+export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, onTeam, teamError, onStart, onLeave, onGone }: Props) {
   const [meta, setMeta] = useState<GameRoom | null>(null);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<RoomSettings | null>(null);
@@ -61,10 +63,18 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
   }, [token, code, onGone]);
 
   const players = live?.players ?? [];
+  const me = players.find((player) => player.you);
+  const myTeam = me?.team === "t" || me?.team === "ct" ? me.team : undefined;
   const max = meta?.maxPlayers ?? 10;
   const owner = meta?.mine ?? false;
   const host = live?.isHost ?? false;
   const skinOf = (id: string) => skins.find((s) => s.id === id);
+  const skinForTeam = (team: GameTeam, id: string) => {
+    const allowed = team === "t"
+      ? ["cs_terror", "cs_leet", "cs_arctic", "cs_guerilla"]
+      : ["cs_urban", "cs_gsg9", "cs_sas", "cs_gign"];
+    return skinOf(allowed.includes(id) ? id : allowed[0]);
+  };
   const inRoom = new Set(players.map((p) => p.name.replace(/ \(reconectando\)$/, "").toLowerCase()));
   const friendList = [...friends.data.friends]
     .filter((f) => !inRoom.has(f.nickname.toLowerCase()))
@@ -131,6 +141,26 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
     );
   }
 
+  function renderPlayer(p: LiveRoom["players"][number], team?: GameTeam) {
+    const skin = team ? skinForTeam(team, p.skin) : skinOf(p.skin);
+    return (
+      <li key={p.id} className={styles.player} data-you={p.you}>
+        {skin?.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={skin.image} alt="" className={styles.sprite} />
+        ) : (
+          <span className={styles.sprite} />
+        )}
+        <span className={styles.playerText}>
+          <span className={styles.playerName}>{p.name}</span>
+          <span className={styles.playerTags}>
+            {[p.isHost && "ANFITRIÃO", p.you && "VOCÊ"].filter(Boolean).join(" · ") || skin?.label}
+          </span>
+        </span>
+      </li>
+    );
+  }
+
   return (
     <div className={styles.waiting} role="region" aria-label="Sala de espera">
       <div className={styles.waitingShell}>
@@ -187,6 +217,51 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
 
         <div className={styles.waitingGrid}>
           <div className={styles.sideStack}>
+            {meta?.mode === "competitive" && (
+              <section className={styles.card} aria-labelledby="wr-players">
+                <div className={styles.cardHead}>
+                  <h2 id="wr-players">ESCOLHA SUA EQUIPE</h2>
+                  <span>{players.length}/{max}</span>
+                </div>
+                {teamError && <p className={styles.msgError} role="alert">{teamError}</p>}
+                <div className={styles.teamGrid}>
+                  {([
+                    { id: "t", label: "TERRORISTAS" },
+                    { id: "ct", label: "CONTRA-TERRORISTAS" },
+                  ] as const).map(({ id, label }) => {
+                    const members = players.filter((player) => player.team === id);
+                    const onThisTeam = myTeam === id;
+                    const full = members.length >= 5;
+                    const cannotJoin = (!onThisTeam && (full || players.length >= max && !myTeam));
+                    return (
+                      <section key={id} className={styles.teamCard} data-team={id} aria-label={label}>
+                        <div className={styles.teamHead}>
+                          <div>
+                            <h3>{label}</h3>
+                            <span>{members.length}/5 JOGADORES</span>
+                          </div>
+                          <button
+                            type="button"
+                            className={onThisTeam ? styles.smallGhost : styles.small}
+                            disabled={onThisTeam || cannotJoin}
+                            onClick={() => onTeam(id)}
+                          >
+                            {onThisTeam ? "SEU TIME" : "ENTRAR"}
+                          </button>
+                        </div>
+                        <ul className={styles.teamPlayers}>
+                          {members.map((player) => renderPlayer(player, id))}
+                          {Array.from({ length: Math.max(0, 5 - members.length) }, (_, index) => (
+                            <li key={`${id}-slot-${index}`} className={styles.slot}>VAGA LIVRE</li>
+                          ))}
+                        </ul>
+                      </section>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+            {meta?.mode !== "competitive" && (
             <section className={styles.card} aria-labelledby="wr-players">
               <div className={styles.cardHead}>
                 <h2 id="wr-players">JOGADORES</h2>
@@ -222,8 +297,9 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
                 ))}
               </ul>
             </section>
+            )}
 
-            <SkinPicker skins={skins} value={mySkin} onChange={onSkin} />
+            <SkinPicker skins={skins} value={mySkin} onChange={onSkin} team={meta?.mode === "competitive" ? myTeam : undefined} />
           </div>
 
           <section className={styles.card} aria-labelledby="wr-friends">

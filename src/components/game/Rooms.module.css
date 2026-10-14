@@ -774,6 +774,72 @@
   gap: 0.5rem;
 }
 
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.teamCard {
+  min-width: 0;
+  padding: 0.65rem;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(242, 227, 207, 0.16);
+}
+
+.teamCard[data-team="t"] {
+  border-top: 3px solid var(--ember);
+}
+
+.teamCard[data-team="ct"] {
+  border-top: 3px solid #77b9ff;
+}
+
+.teamHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.teamHead h3 {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--bone);
+}
+
+.teamHead span {
+  color: var(--bone-dim);
+  font-size: 0.65rem;
+}
+
+.teamPlayers {
+  display: grid;
+  gap: 0.35rem;
+  list-style: none;
+}
+
+.teamPlayers .player,
+.teamPlayers .slot {
+  min-height: 3rem;
+  padding: 0.25rem 0.4rem;
+}
+
+.teamPlayers .sprite {
+  width: 30px;
+  height: 38px;
+}
+
+.teamPlayers .playerTags {
+  font-size: 0.5rem;
+}
+
+.teamPlayers .slot {
+  font-size: 0.65rem;
+}
+
 .player,
 .slot {
   display: flex;
@@ -933,6 +999,12 @@
 
 .settingsCard {
   border-color: var(--hud);
+}
+
+@media (max-width: 480px) {
+  .teamGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 860px) {

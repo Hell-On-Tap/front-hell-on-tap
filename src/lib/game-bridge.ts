@@ -9,6 +9,7 @@ import { useSyncExternalStore } from "react";
  * as mensagens do jogo chegam aqui e são repassadas a quem estiver ouvindo.
  */
 export type Skin = { id: string; label: string; image: string };
+export type GameTeam = "t" | "ct";
 export type GamePhase = "off" | "loading" | "ready" | "failed";
 export type GameState = {
   phase: GamePhase;
