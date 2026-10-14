@@ -130,6 +130,9 @@ export default function SiteHeader() {
                         </Link>
                     </>
                 )}
+                <Link href="/atualizacoes" className={styles.clans}>
+                    Atualizações
+                </Link>
                 <Link href="/clans" className={styles.clans}>
                     Clãs
                     {invites > 0 && (
