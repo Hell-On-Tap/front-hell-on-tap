@@ -253,6 +253,9 @@ function GameSession({ mode, room }: { mode: "online" | "bots"; room: string }) 
           onStart={() => sendToGame({ type: "hot:start" })}
           onLeave={leave}
           onGone={gone}
+          onAddBot={(team) => sendToGame({ type: "hot:bot-add", team })}
+          onRemoveBot={(id) => sendToGame({ type: "hot:bot-remove", id })}
+          onBotDifficulty={(id, difficulty) => sendToGame({ type: "hot:bot-difficulty", id, difficulty })}
         />
       ) : stage.kind === "inProgress" ? (
         <InProgress meta={stage.meta} onEnter={join} onLeave={() => router.push("/lobby")} />

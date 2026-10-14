@@ -838,6 +838,111 @@
 
 .teamPlayers .slot {
   font-size: 0.65rem;
+  justify-content: space-between;
+  padding: 0.25rem 0.6rem;
+}
+
+.slotLabel {
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.addBotBtn {
+  min-height: 1.65rem;
+  min-width: 1.65rem;
+  padding: 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--blood-deep);
+  background: var(--hud);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.addBotBtn:hover:not(:disabled) {
+  background: #ffc766;
+  transform: scale(1.05);
+}
+
+.addBotBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.player[data-bot="true"] {
+  border-color: rgba(255, 184, 51, 0.25);
+}
+
+.botControls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex: none;
+}
+
+.botSelect {
+  min-height: 1.65rem;
+  padding: 0 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: inherit;
+  color: var(--hud);
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 184, 51, 0.35);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.botSelect:hover:not(:disabled),
+.botSelect:focus {
+  border-color: var(--hud);
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.botSelect:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.botSelect option {
+  background: #1a0a08;
+  color: var(--bone);
+  font-size: 0.8rem;
+}
+
+.removeBotBtn {
+  min-height: 1.65rem;
+  min-width: 1.65rem;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--bone-dim);
+  background: rgba(242, 227, 207, 0.06);
+  border: 1px solid rgba(242, 227, 207, 0.18);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.removeBotBtn:hover {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.14);
 }
 
 .player,

@@ -15,7 +15,16 @@ export type LiveRoom = {
   isHost: boolean;
   started: boolean;
   /** `team` só no 5x5 (t = Terroristas, ct = Contra-Terroristas) */
-  players: { id: string; name: string; skin: string; isHost: boolean; you: boolean; team?: string }[];
+  players: {
+    id: string;
+    name: string;
+    skin: string;
+    isHost: boolean;
+    you: boolean;
+    team?: string;
+    isBot?: boolean;
+    botDifficulty?: string;
+  }[];
 };
 
 type Props = {
@@ -31,10 +40,28 @@ type Props = {
   onLeave: () => void;
   /** a sala sumiu do servidor */
   onGone: (message: string) => void;
+  onAddBot?: (team: GameTeam) => void;
+  onRemoveBot?: (id: string) => void;
+  onBotDifficulty?: (id: string, difficulty: string) => void;
 };
 
 /** Sala de espera no site, por cima do jogo: quem está, personagem, convites e "Iniciar". */
-export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, onTeam, teamError, onStart, onLeave, onGone }: Props) {
+export default function WaitingRoom({
+  token,
+  code,
+  live,
+  skins,
+  mySkin,
+  onSkin,
+  onTeam,
+  teamError,
+  onStart,
+  onLeave,
+  onGone,
+  onAddBot,
+  onRemoveBot,
+  onBotDifficulty,
+}: Props) {
   const [meta, setMeta] = useState<GameRoom | null>(null);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<RoomSettings | null>(null);
@@ -141,10 +168,12 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
     );
   }
 
+  const canManageBots = (host || owner) && !live?.started;
+
   function renderPlayer(p: LiveRoom["players"][number], team?: GameTeam) {
     const skin = team ? skinForTeam(team, p.skin) : skinOf(p.skin);
     return (
-      <li key={p.id} className={styles.player} data-you={p.you}>
+      <li key={p.id} className={styles.player} data-you={p.you} data-bot={p.isBot}>
         {skin?.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={skin.image} alt="" className={styles.sprite} />
@@ -154,9 +183,37 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
         <span className={styles.playerText}>
           <span className={styles.playerName}>{p.name}</span>
           <span className={styles.playerTags}>
-            {[p.isHost && "ANFITRIÃO", p.you && "VOCÊ"].filter(Boolean).join(" · ") || skin?.label}
+            {[p.isBot && "BOT", p.isHost && "ANFITRIÃO", p.you && "VOCÊ"].filter(Boolean).join(" · ") || skin?.label}
           </span>
         </span>
+        {p.isBot && (
+          <div className={styles.botControls}>
+            <select
+              className={styles.botSelect}
+              value={p.botDifficulty ?? "medium"}
+              disabled={!canManageBots}
+              onChange={(e) => onBotDifficulty?.(p.id, e.target.value)}
+              title="Dificuldade do bot"
+              aria-label="Dificuldade do bot"
+            >
+              <option value="easy">Fácil</option>
+              <option value="medium">Médio</option>
+              <option value="hard">Difícil</option>
+              <option value="expert">Perito</option>
+            </select>
+            {canManageBots && (
+              <button
+                type="button"
+                className={styles.removeBotBtn}
+                title="Remover bot"
+                aria-label="Remover bot"
+                onClick={() => onRemoveBot?.(p.id)}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
       </li>
     );
   }
@@ -252,7 +309,21 @@ export default function WaitingRoom({ token, code, live, skins, mySkin, onSkin, 
                         <ul className={styles.teamPlayers}>
                           {members.map((player) => renderPlayer(player, id))}
                           {Array.from({ length: Math.max(0, 5 - members.length) }, (_, index) => (
-                            <li key={`${id}-slot-${index}`} className={styles.slot}>VAGA LIVRE</li>
+                            <li key={`${id}-slot-${index}`} className={styles.slot}>
+                              <span className={styles.slotLabel}>VAGA LIVRE</span>
+                              {canManageBots && (
+                                <button
+                                  type="button"
+                                  className={styles.addBotBtn}
+                                  title="Adicionar bot nesta vaga"
+                                  aria-label="Adicionar bot nesta vaga"
+                                  disabled={players.length >= max}
+                                  onClick={() => onAddBot?.(id)}
+                                >
+                                  +
+                                </button>
+                              )}
+                            </li>
                           ))}
                         </ul>
                       </section>
