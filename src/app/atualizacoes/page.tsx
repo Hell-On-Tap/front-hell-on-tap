@@ -32,9 +32,9 @@ const releases: Release[] = [
           "Os bots não utilizam radar ou visão através de paredes. Eles exploram e patrulham o mapa de forma autônoma e só detectam adversários dentro de seu campo de visão natural (~170°) ou ao ouvir passos e disparos. Além disso, não enxergam através de cortinas de fumaça (smokes) e ficam completamente cegos e desorientados quando atingidos por flashbangs.",
       },
       {
-        title: "Locomoção e Navegação dos Bots",
+        title: "Locomoção, Afastamento de Paredes e Navegação dos Bots",
         description:
-          "Os bots não pulam mais repetidamente contra paredes ou caixas que não conseguem subir. Quando encontram obstáculos sólidos altos à sua frente, eles cessam o pulo, param o avanço frontal e realizam manobras inteligentes de desvio lateral e recálculo de rota.",
+          "Implementamos afastamento preventivo de paredes (whisker/feeler steering) e verificação de passagem com o volume do jogador nos waypoints. Os bots agora mantêm uma distância segura das paredes e esquinas, navegam centralizados por portas e corredores sem raspar ou bater nas paredes, e não pulam mais contra paredes ou caixas altas que não conseguem subir, desviando de forma suave e inteligente.",
       },
       {
         title: "Fechamento Automático de Salas",
