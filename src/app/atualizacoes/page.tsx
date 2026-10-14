@@ -27,9 +27,9 @@ const releases: Release[] = [
           "Agora é possível preencher vagas na sala de espera com bots. O anfitrião pode adicionar bots em qualquer equipe com um clique no botão +, escolher entre quatro níveis de dificuldade (Fácil, Médio, Difícil e Perito) ou removê-los a qualquer momento.",
       },
       {
-        title: "Inteligência Artificial e Visão Realista",
+        title: "Inteligência Artificial e Reação Tática",
         description:
-          "Os bots não utilizam radar ou visão através de paredes. Eles exploram e patrulham o mapa de forma autônoma e só detectam adversários dentro de seu campo de visão natural (~170°), ou ao ouvir passos e disparos próximos.",
+          "Os bots não utilizam radar ou visão através de paredes. Eles exploram e patrulham o mapa de forma autônoma e só detectam adversários dentro de seu campo de visão natural (~170°) ou ao ouvir passos e disparos. Além disso, não enxergam através de cortinas de fumaça (smokes) e ficam completamente cegos e desorientados quando atingidos por flashbangs.",
       },
       {
         title: "Locomoção e Navegação dos Bots",
@@ -47,9 +47,9 @@ const releases: Release[] = [
           "Expandimos o modo espectador nas partidas online e 5v5: além da visão em primeira pessoa, jogadores eliminados podem alternar entre a câmera orbital em terceira pessoa (girando livremente com o mouse) e a câmera livre (noclip) controlada por WASD.",
       },
       {
-        title: "Física de Drop e Coleta com a Tecla E",
+        title: "Física de Drop e Coleta de Armas e Granadas",
         description:
-          "Corrigimos a física de quique contínuo das armas dropadas. Além de poder passar por cima com o espaço vago, agora você pode mirar diretamente na arma no chão e pressionar E para pegá-la à distância, com aviso visual dinâmico na tela.",
+          "Todas as armas e granadas (HE, Flashbang e Smoke) agora podem ser dropadas no chão pressionando G. Corrigimos a física de quique contínuo e habilitamos a coleta tanto passando por cima com espaço livre quanto mirando no item caído e pressionando E à distância.",
       },
       {
         title: "Otimização de Desempenho e Latência (Ping)",
